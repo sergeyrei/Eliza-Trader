@@ -1,6 +1,8 @@
 *.ts
 !index.ts
 !character.ts
+!providers/*
+!providers/utils/*
 .env
 *.env
 .env*
