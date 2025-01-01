@@ -26,8 +26,6 @@ jobs:
       run: |
         aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY }}
 
-
-
     # Step 5: Create SSH Key File
     - name: Create SSH Key File
       run: |
@@ -47,11 +45,6 @@ jobs:
           echo "Pulling latest Docker image..."
           docker pull ${{ secrets.ECR_REPOSITORY }}:latest
 
-          # Stop and remove any existing container
-          echo "Stopping existing Docker container if it exists..."
-          docker stop sailor-app-container || true
-          docker rm sailor-app-container || true
-
           # Run a new Docker container
           echo "Starting new Docker container..."
           docker run -d -p 80:80 \
@@ -62,15 +55,6 @@ jobs:
             -e OPENAI_API_KEY=\${{ secrets.OPENAI_API_KEY }} \
             ${{ secrets.ECR_REPOSITORY }}:latest && echo "Container started successfully" || echo "Failed to start container"
 
-          echo "Container logs:"
-          docker logs sailor-app-container || echo "Failed to fetch logs"
-          sleep 5
-          echo "Container logs:"
-          docker logs sailor-app-container || echo "Failed to fetch logs"
-          sleep 15
-
-          echo "Container logs:"
-          docker logs sailor-app-container || echo "Failed to fetch logs"
           # Give the container some time to start and initialize
           sleep 30
 
