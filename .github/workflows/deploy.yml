@@ -65,16 +65,4 @@ jobs:
           # Give the container some time to start and initialize
           sleep 30
 
-          # Check container status to confirm it's running
-          echo "Checking container status..."
-          if docker ps | grep -q sailor-app-container; then
-            echo "Container is running."
-          else
-            echo "Container is not running."
-          fi
-
-          # Fetch logs to see what's happening inside the container
-          echo "Container logs:"
-          docker logs sailor-app-container || echo "Failed to fetch logs"
-
           EOF
