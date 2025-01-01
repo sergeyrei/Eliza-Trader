@@ -29,7 +29,7 @@ jobs:
     # Step 4: Build, Tag, and Push Docker image to ECR
     - name: Build and Push Docker image
       run: |
-        docker build -t eliza-trader-tee .
+        docker build --no-cache -t eliza-trader-tee .
         docker tag eliza-trader-tee:latest ${{ secrets.ECR_REPOSITORY }}:latest
         docker push ${{ secrets.ECR_REPOSITORY }}:latest
 
@@ -51,11 +51,6 @@ jobs:
           # Pull the latest version of the Docker image
           echo "Pulling latest Docker image..."
           docker pull ${{ secrets.ECR_REPOSITORY }}:latest
-
-          # Stop and remove any existing container
-          echo "Stopping existing Docker container if it exists..."
-          docker stop sailor-app-container || true
-          docker rm sailor-app-container || true
 
           # Run a new Docker container
           echo "Starting new Docker container..."
