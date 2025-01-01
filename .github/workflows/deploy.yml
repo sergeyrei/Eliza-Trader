@@ -7,7 +7,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest  # Use your self-hosted runner
+    runs-on: ubuntu-latest  # Use your self-hosted runner (or choose a different runner)
 
     steps:
     # Step 1: Checkout the code
@@ -40,46 +40,46 @@ jobs:
         chmod 600 eliza-key.pem
 
     # Step 6: Deploy to EC2
-- name: Deploy to EC2
-  run: |
-    ssh -i eliza-key.pem \
-      -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+    - name: Deploy to EC2
+      run: |
+        ssh -i eliza-key.pem \
+          -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} <<EOF
 
-    # Login to AWS ECR
-    aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY }}
+          # Login to AWS ECR
+          aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REPOSITORY }}
 
-    # Pull the latest version of the Docker image
-    echo "Pulling latest Docker image..."
-    docker pull ${{ secrets.ECR_REPOSITORY }}:latest
+          # Pull the latest version of the Docker image
+          echo "Pulling latest Docker image..."
+          docker pull ${{ secrets.ECR_REPOSITORY }}:latest
 
-    # Stop and remove any existing container
-    echo "Stopping existing Docker container if it exists..."
-    docker stop sailor-app-container || true
-    docker rm sailor-app-container || true
+          # Stop and remove any existing container
+          echo "Stopping existing Docker container if it exists..."
+          docker stop sailor-app-container || true
+          docker rm sailor-app-container || true
 
-    # Run a new Docker container
-    echo "Starting new Docker container..."
-    docker run -d -p 80:80 \
-      --name sailor-app-container \
-      -e TWITTER_USERNAME={{secrets.TWITTER_USERNAME}} \
-      -e TWITTER_PASSWORD={{secrets.TWITTER_PASSWORD}} \
-      -e TWITTER_EMAIL={{secrets.TWITTER_EMAIL}} \
-      -e OPENAI_API_KEY=${{secrets.OPENAI_API_KEY}} \
-      ${{ secrets.ECR_REPOSITORY }}:latest && echo "Container started successfully" || echo "Failed to start container"
+          # Run a new Docker container
+          echo "Starting new Docker container..."
+          docker run -d -p 80:80 \
+            --name sailor-app-container \
+            -e TWITTER_USERNAME=\${{ secrets.TWITTER_USERNAME }} \
+            -e TWITTER_PASSWORD=\${{ secrets.TWITTER_PASSWORD }} \
+            -e TWITTER_EMAIL=\${{ secrets.TWITTER_EMAIL }} \
+            -e OPENAI_API_KEY=\${{ secrets.OPENAI_API_KEY }} \
+            ${{ secrets.ECR_REPOSITORY }}:latest && echo "Container started successfully" || echo "Failed to start container"
 
-    # Give the container some time to start and initialize
-    sleep 30
+          # Give the container some time to start and initialize
+          sleep 30
 
-    # Check container status to confirm it's running
-    echo "Checking container status..."
-    if docker ps | grep -q sailor-app-container; then
-      echo "Container is running."
-    else
-      echo "Container is not running."
-    fi
+          # Check container status to confirm it's running
+          echo "Checking container status..."
+          if docker ps | grep -q sailor-app-container; then
+            echo "Container is running."
+          else
+            echo "Container is not running."
+          fi
 
-    # Fetch logs to see what's happening inside the container
-    echo "Container logs:"
-    docker logs sailor-app-container || echo "Failed to fetch logs"
+          # Fetch logs to see what's happening inside the container
+          echo "Container logs:"
+          docker logs sailor-app-container || echo "Failed to fetch logs"
 
-    EOF
+          EOF
