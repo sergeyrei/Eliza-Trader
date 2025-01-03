@@ -4,6 +4,11 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'agent/**'         # Trigger on changes in the agent folder and subfolders
+      - 'characters/**'    # Trigger on changes in the characters folder and subfolders
+
+  workflow_dispatch:  # Allow manual triggering
 
 jobs:
   deploy:
