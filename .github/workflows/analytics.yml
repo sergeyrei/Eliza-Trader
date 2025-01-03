@@ -1,11 +1,11 @@
-name: Run OpenAI Interaction Table
+name: Run OpenAI Interaction Table with pnpm
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'characters/aisaylor.character.json'
+      - 'Eliza-Trader/characters/aisaylor.character.json'
   workflow_dispatch: # Allows manual triggering if needed
 
 jobs:
@@ -21,12 +21,14 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install Dependencies
-        run: npm install
+      - name: Install pnpm
+        run: npm install -g pnpm
 
-      - name: Run OpenAI Interaction Table Script
-        run: |
-          node src/generateInteractionTable.mjs
+      - name: Install Dependencies Using pnpm
+        run: pnpm install --frozen-lockfile
+
+      - name: Run OpenAI Interaction Table Script with pnpm
+        run: pnpm run generate-interaction
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
