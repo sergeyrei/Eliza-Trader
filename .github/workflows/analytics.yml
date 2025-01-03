@@ -16,23 +16,32 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set Up Node.js
+      # ✅ Correct order: Install pnpm BEFORE caching
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      # ✅ Setup Node.js AFTER pnpm is installed to avoid cache conflicts
+      - name: Set Up Node.js with pnpm caching
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'pnpm'
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+      # ✅ Verify pnpm installation and version
+      - name: Verify pnpm Installation
+        run: pnpm --version
 
+      # ✅ Ensure pnpm installs dependencies properly
       - name: Install Dependencies Using pnpm
         run: pnpm install --frozen-lockfile
 
+      # ✅ Run the script from the correct path
       - name: Run OpenAI Interaction Table Script
         run: pnpm run generate-interaction
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
+      # ✅ Upload the results as an artifact
       - name: Upload Result as an Artifact
         uses: actions/upload-artifact@v4
         with:
