@@ -3,8 +3,8 @@ name: Generate Interaction Table with OpenAI and Deploy to GitHub Pages
 on:
   push:
     branches:
-      - model
-  workflow_dispatch:
+      - model  # Always trigger on any change in the model branch
+  workflow_dispatch:  # Allow manual triggering
 
 jobs:
   run-openai-test:
