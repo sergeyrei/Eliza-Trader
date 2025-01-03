@@ -2,6 +2,7 @@ import fs from 'fs/promises';
 import OpenAI from "openai";
 import { fileURLToPath } from 'url';
 import path from "path";
+import * as XLSX from "xlsx";
 
 // Ensure correct path resolution for both local and CI environments
 const __filename = fileURLToPath(import.meta.url);
@@ -49,7 +50,19 @@ async function getOpenAIResponse(input, index) {
     }
 }
 
-// Generate the interaction table with 10 examples
+// Convert JSON data to an Excel file
+async function generateExcel(table) {
+    const worksheet = XLSX.utils.json_to_sheet(table);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Interaction Table");
+
+    // Save the Excel file as interaction_table.xlsx
+    const excelFilePath = path.resolve(__dirname, 'interaction_table.xlsx');
+    XLSX.writeFile(workbook, excelFilePath);
+    console.log("✅ Excel file generated: interaction_table.xlsx");
+}
+
+// Generate the interaction table with 10 examples and export to Excel
 async function generateInteractionTable() {
     const inputData = await getInputData();
     console.log("✅ Input data loaded successfully:", inputData);
@@ -59,14 +72,13 @@ async function generateInteractionTable() {
         const outputData = await getOpenAIResponse(inputData, i);
         table.push({
             id: i + 1,
-            input: inputData,
+            input: JSON.stringify(inputData),
             output: outputData
         });
     }
 
     console.table(table);
-    await fs.writeFile('interaction_table.json', JSON.stringify(table, null, 2));
-    console.log("✅ Interaction table generated: interaction_table.json");
+    await generateExcel(table);  // Save results as Excel file
 }
 
 // Run the script

@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths:
-      - 'Eliza-Trader/characters/aisaylor.character.json'  # Trigger only when this file changes
-  workflow_dispatch: # Allows manual triggering if needed
+      - 'Eliza-Trader/characters/aisaylor.character.json'
+  workflow_dispatch:
 
 jobs:
   run-openai-test:
@@ -16,35 +16,26 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # ✅ Correct order: Install pnpm BEFORE caching
-      - name: Install pnpm
-        run: npm install -g pnpm
-
-      # ✅ Setup Node.js AFTER pnpm is installed to avoid cache conflicts
-      - name: Set Up Node.js with pnpm caching
+      - name: Set Up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'pnpm'
 
-      # ✅ Verify pnpm installation and version
-      - name: Verify pnpm Installation
-        run: pnpm --version
+      - name: Install pnpm
+        run: npm install -g pnpm
 
-      # ✅ Ensure pnpm installs dependencies properly
       - name: Install Dependencies Using pnpm
         run: pnpm install --frozen-lockfile
 
-      # ✅ Run the script from the correct path
       - name: Run OpenAI Interaction Table Script
         run: pnpm run generate-interaction
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
-      # ✅ Upload the results as an artifact
-      - name: Upload Result as an Artifact
+      - name: Upload Excel Result as an Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: openai-interaction-table
-          path: interaction_table.json
-          retention-days: 7  # File available for 7 days
+          name: openai-interaction-table-excel
+          path: Eliza-Trader/agent/interaction_table.xlsx
+          retention-days: 7
