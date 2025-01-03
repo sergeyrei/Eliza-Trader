@@ -52,14 +52,23 @@ async function getOpenAIResponse(input, index) {
 
 // Convert JSON data to an Excel file
 async function generateExcel(table) {
-    const worksheet = XLSX.utils.json_to_sheet(table);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Interaction Table");
+    // Ensure the directory exists before writing the file
+    const excelFilePath = path.join(__dirname, '../../agent/interaction_table.xlsx');
+    try {
+        const worksheet = XLSX.utils.json_to_sheet(table);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Interaction Table");
 
-    // Save the Excel file as interaction_table.xlsx
-    const excelFilePath = path.resolve(__dirname, 'interaction_table.xlsx');
-    XLSX.writeFile(workbook, excelFilePath);
-    console.log("✅ Excel file generated: interaction_table.xlsx");
+        // Create directories if they don't exist
+        await fs.mkdir(path.dirname(excelFilePath), { recursive: true });
+        XLSX.writeFile(workbook, excelFilePath);
+
+        console.log(`✅ Excel file generated: ${excelFilePath}`);
+        return excelFilePath;
+    } catch (error) {
+        console.error("❌ Error writing the Excel file:", error);
+        process.exit(1);
+    }
 }
 
 // Generate the interaction table with 10 examples and export to Excel
