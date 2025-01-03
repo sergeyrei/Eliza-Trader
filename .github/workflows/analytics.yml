@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'Eliza-Trader/characters/aisaylor.character.json'
+      - 'characters/*.json'
 
 jobs:
   run-openai-test:
