@@ -1,5 +1,11 @@
 import fs from 'fs/promises';
 import OpenAI from "openai";
+import { fileURLToPath } from 'url';
+import path from "path";
+
+// Ensure correct path resolution for both local and CI environments
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Load the API key from environment variables (for GitHub Secrets)
 const apiKey = process.env.OPENAI_API_KEY;
@@ -16,10 +22,11 @@ const openai = new OpenAI({
 // Helper function to get data from the JSON file
 async function getInputData() {
     try {
-        const rawData = await fs.readFile('../../characters/aisaylor.character.json', 'utf-8');
+        const filePath = path.resolve(__dirname, '../../characters/aisaylor.character.json');
+        const rawData = await fs.readFile(filePath, 'utf-8');
         return JSON.parse(rawData);
     } catch (error) {
-        console.error("Error reading input file:", error);
+        console.error("❌ Error reading input file:", error);
         process.exit(1);
     }
 }
@@ -45,6 +52,7 @@ async function getOpenAIResponse(input, index) {
 // Generate the interaction table with 10 examples
 async function generateInteractionTable() {
     const inputData = await getInputData();
+    console.log("✅ Input data loaded successfully:", inputData);
     const table = [];
 
     for (let i = 0; i < 5; i++) {
