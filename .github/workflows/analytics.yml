@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - 'Eliza-Trader/characters/aisaylor.character.json'
-  workflow_dispatch:
 
 jobs:
   run-openai-test:
