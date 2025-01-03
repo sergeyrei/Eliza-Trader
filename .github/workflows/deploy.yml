@@ -24,26 +24,7 @@ jobs:
       TWITTER_EMAIL: ${{ secrets.TWITTER_EMAIL }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
-  steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
-
-    # ✅ Prevent triggering if changes are ONLY in 'characters/*.json'
-    - name: Check for Changes Outside 'characters/*.json'
-      id: check_changes
-      run: |
-        if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep -v 'characters/.*\.json'; then
-          echo "CHANGES_OUTSIDE=true" >> $GITHUB_ENV
-        else
-          echo "CHANGES_OUTSIDE=false" >> $GITHUB_ENV
-        fi
-
-    # ✅ Conditional execution based on file changes
-    - name: Deploy to EC2
-      if: env.CHANGES_OUTSIDE == 'true'
-      run: |
-        echo "Deploying to EC2 because changes were made outside 'characters/*.json'."
-
+    steps:
     - name: Checkout Code
       uses: actions/checkout@v3
 
