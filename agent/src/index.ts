@@ -1,4 +1,5 @@
 import { PostgresDatabaseAdapter } from "@elizaos/adapter-postgres";
+import { SupabaseDatabaseAdapter } from "@elizaos/adapter-supabase";
 import { SqliteDatabaseAdapter } from "@elizaos/adapter-sqlite";
 import { AutoClientInterface } from "@elizaos/client-auto";
 import { DiscordClientInterface } from "@elizaos/client-discord";
@@ -376,10 +377,14 @@ function initializeDatabase(dataDir: string) {
             });
 
         return db;
-    } else {
+    }
+    else {
         const filePath =
             process.env.SQLITE_FILE ?? path.resolve(dataDir, "db.sqlite");
         // ":memory:";
+        elizaLogger.success(
+            "Successfully connected to SqliteDatabaseAdapter database"
+        );
         const db = new SqliteDatabaseAdapter(new Database(filePath));
         return db;
     }
@@ -700,6 +705,9 @@ async function startAgent(
             token
         );
 
+        console.log(runtime);
+        elizaLogger.log(runtime);
+
         // start services/plugins/process knowledge
         await runtime.initialize();
 
@@ -709,6 +717,7 @@ async function startAgent(
         // add to container
         directClient.registerAgent(runtime);
 
+        elizaLogger.info(`Started at database: ${runtime.databaseAdapter.db}`);
         // report to console
         elizaLogger.debug(`Started ${character.name} as ${runtime.agentId}`);
 

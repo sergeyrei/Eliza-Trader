@@ -1,0 +1,37 @@
+name: Run OpenAI Interaction Table
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'characters/aisaylor.character.json'
+  workflow_dispatch: # Allows manual triggering if needed
+
+jobs:
+  run-openai-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set Up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run OpenAI Interaction Table Script
+        run: |
+          node src/generateInteractionTable.mjs
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Upload Result as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: openai-interaction-table
+          path: interaction_table.json
