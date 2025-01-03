@@ -3,7 +3,7 @@ name: Generate Interaction Table with OpenAI and Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - model
     paths:
       - 'characters/*.json'
 
