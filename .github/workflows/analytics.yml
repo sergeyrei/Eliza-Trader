@@ -38,13 +38,6 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
 
-      # ✅ Upload Google Sheets result URL as an artifact
-      - name: Generate Google Sheet URL
-        run: echo "Google Sheets URL: https://docs.google.com/spreadsheets/d/15F5xx-Gb7Pl50UmXL_WNqAzIs8uP0vDkRv6uP9fytSk" > google_sheet_url.txt
-
-      - name: Upload Google Sheet URL as an Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: google-sheet-url
-          path: google_sheet_url.txt
-          retention-days: 7
+      # ✅ Display Google Sheets result URL
+      - name: Display Google Sheet URL
+        run: echo "✅ Google Sheets URL: https://docs.google.com/spreadsheets/d/15F5xx-Gb7Pl50UmXL_WNqAzIs8uP0vDkRv6uP9fytSk"
