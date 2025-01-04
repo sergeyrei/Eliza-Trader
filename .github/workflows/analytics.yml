@@ -41,5 +41,4 @@ jobs:
       # ✅ Display Google Sheets result URL
       - name: Display Google Sheet URL
         run: |
-          echo "✅ Google Sheets URL:"
-          echo "https://docs.google.com/spreadsheets/d/15F5xx-Gb7Pl50UmXL_WNqAzIs8uP0vDkRv6uP9fytSk"
+          echo "Google Sheets URL: https://docs.google.com/spreadsheets/d/15F5xx-Gb7Pl50UmXL_WNqAzIs8uP0vDkRv6uP9fytSk"
