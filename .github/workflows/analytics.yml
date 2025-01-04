@@ -1,4 +1,4 @@
-name: Generate Interaction Table with OpenAI and Deploy to GitHub Pages
+name: Generate Interaction Table with OpenAI and Deploy to Google Sheets
 
 on:
   push:
@@ -31,40 +31,19 @@ jobs:
       - name: Install Dependencies Using pnpm
         run: pnpm install --frozen-lockfile
 
-      # ✅ Run the script and generate the Excel file
+      # ✅ Run the script and generate the Google Sheet table
       - name: Run OpenAI Interaction Table Script
         run: pnpm run generate-interaction
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
 
-      # ✅ Commit the Excel file back to the `main` branch
-      - name: Commit Excel File Back to Repository
+      # ✅ Upload Google Sheets result URL as an artifact
+      - name: Upload Google Sheet URL as an Artifact
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add agent/interaction_table.xlsx
-          git commit -m "chore: add generated interaction table"
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # ✅ Deploy Excel file to a separate GitHub Pages branch (gh-pages)
-      - name: Deploy Excel File to GitHub Pages
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git checkout --orphan gh-pages
-          git reset
-          git add agent/interaction_table.xlsx
-          git commit -m "chore: publish Excel file to GitHub Pages"
-          git push -f origin gh-pages
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # ✅ Upload as an artifact for direct download
-      - name: Upload Excel Result as an Artifact
+          echo "Google Sheets URL: https://docs.google.com/spreadsheets/d/15F5xx-Gb7Pl50UmXL_WNqAzIs8uP0vDkRv6uP9fytSk" > google_sheet_url.txt
         uses: actions/upload-artifact@v4
         with:
-          name: openai-interaction-table
-          path: agent/interaction_table.xlsx
+          name: google-sheet-url
+          path: google_sheet_url.txt
           retention-days: 7

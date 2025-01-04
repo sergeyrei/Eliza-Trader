@@ -2,7 +2,7 @@ import fs from 'fs/promises';
 import OpenAI from "openai";
 import { fileURLToPath } from 'url';
 import path from "path";
-import * as XLSX from "xlsx";
+import { google } from 'googleapis';
 
 // Ensure correct path resolution for both local and CI environments
 const __filename = fileURLToPath(import.meta.url);
@@ -16,9 +16,14 @@ if (!apiKey) {
 }
 
 // Initialize OpenAI client
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
-});
+const openai = new OpenAI({ apiKey });
+
+// Google Sheets setup using API Key
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+const sheets = google.sheets('v4');
+
+// Define your Google Spreadsheet ID here
+const SPREADSHEET_ID = '15F5xx-Gb7Pl50UmXL_WNqAzIs8uP0vDkRv6uP9fytSk';
 
 // Helper function to get data from the JSON file
 async function getInputData() {
@@ -38,7 +43,7 @@ async function getOpenAIResponse(input, index) {
         const completion = await openai.chat.completions.create({
             model: "gpt-4",
             messages: [
-                { role: "system", content: "You are a tweet maker based on your provided input(this is your personality)" },
+                { role: "system", content: "You are a tweet maker based on your provided input (this is your personality)." },
                 { role: "user", content: `Example ${index + 1}: Generate an engaging tweet based on this input: ${JSON.stringify(input)}` }
             ],
             max_tokens: 100
@@ -50,28 +55,55 @@ async function getOpenAIResponse(input, index) {
     }
 }
 
-// Convert JSON data to an Excel file
-async function generateExcel(table) {
-    // Ensure the directory exists before writing the file
-    const excelFilePath = path.join(__dirname, '../../agent/interaction_table.xlsx');
-    try {
-        const worksheet = XLSX.utils.json_to_sheet(table);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Interaction Table");
-
-        // Create directories if they don't exist
-        await fs.mkdir(path.dirname(excelFilePath), { recursive: true });
-        XLSX.writeFile(workbook, excelFilePath);
-
-        console.log(`✅ Excel file generated: ${excelFilePath}`);
-        return excelFilePath;
-    } catch (error) {
-        console.error("❌ Error writing the Excel file:", error);
-        process.exit(1);
-    }
+// Generate a unique sheet name using the current date and commit hash
+function generateSheetName() {
+    const date = new Date().toISOString().split('T')[0];
+    const commitSha = process.env.GITHUB_SHA?.substring(0, 7) || "manual-run";
+    return `${date}-${commitSha}`;
 }
 
-// Generate the interaction table with 10 examples and export to Excel
+// Append data to Google Sheets using the public API key
+async function appendToGoogleSheet(table) {
+    const sheetName = generateSheetName();
+
+    // Create a new sheet in the Google Sheet
+    await sheets.spreadsheets.batchUpdate({
+        spreadsheetId: SPREADSHEET_ID,
+        key: GOOGLE_API_KEY, // Using the public API Key here
+        requestBody: {
+            requests: [
+                {
+                    addSheet: {
+                        properties: {
+                            title: sheetName
+                        }
+                    }
+                }
+            ]
+        }
+    });
+
+    // Prepare data for Google Sheets
+    const values = [['ID', 'Input', 'Output']];
+    table.forEach(row => {
+        values.push([row.id, row.input, row.output]);
+    });
+
+    // Write data to the newly created sheet
+    await sheets.spreadsheets.values.update({
+        spreadsheetId: SPREADSHEET_ID,
+        range: `${sheetName}!A1`,
+        valueInputOption: 'RAW',
+        key: GOOGLE_API_KEY,  // Using the public API Key here
+        requestBody: {
+            values: values
+        }
+    });
+
+    console.log(`✅ Data successfully written to Google Sheet: ${sheetName}`);
+}
+
+// Generate the interaction table with 5 examples and export to Google Sheets
 async function generateInteractionTable() {
     const inputData = await getInputData();
     console.log("✅ Input data loaded successfully:", inputData);
@@ -87,7 +119,7 @@ async function generateInteractionTable() {
     }
 
     console.table(table);
-    await generateExcel(table);  // Save results as Excel file
+    await appendToGoogleSheet(table);  // Save results to Google Sheets
 }
 
 // Run the script
