@@ -39,9 +39,10 @@ jobs:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
 
       # ✅ Upload Google Sheets result URL as an artifact
+      - name: Generate Google Sheet URL
+        run: echo "Google Sheets URL: https://docs.google.com/spreadsheets/d/15F5xx-Gb7Pl50UmXL_WNqAzIs8uP0vDkRv6uP9fytSk" > google_sheet_url.txt
+
       - name: Upload Google Sheet URL as an Artifact
-        run: |
-          echo "Google Sheets URL: https://docs.google.com/spreadsheets/d/15F5xx-Gb7Pl50UmXL_WNqAzIs8uP0vDkRv6uP9fytSk" > google_sheet_url.txt
         uses: actions/upload-artifact@v4
         with:
           name: google-sheet-url
