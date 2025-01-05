@@ -4,11 +4,11 @@ import { fileURLToPath } from 'url';
 import path from "path";
 import { google } from 'googleapis';
 
-// Ensure correct path resolution for both local and CI environments
+// Ensure correct path resolution
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load the API key from environment variables (for GitHub Secrets)
+// Load the API key from environment variables
 const apiKey = process.env.OPENAI_API_KEY;
 if (!apiKey) {
     console.error("❌ Missing OpenAI API Key.");
@@ -18,11 +18,21 @@ if (!apiKey) {
 // Initialize OpenAI client
 const openai = new OpenAI({ apiKey });
 
-// Google Sheets setup using API Key
-const GOOGLE_API_KEY = process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS;
-const sheets = google.sheets('v4');
+// Initialize Google Sheets with Service Account
+const GOOGLE_SERVICE_ACCOUNT_CREDENTIALS = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS);
 
-// Define your Google Spreadsheet ID here
+if (!GOOGLE_SERVICE_ACCOUNT_CREDENTIALS) {
+    console.error("❌ Missing GOOGLE_SERVICE_ACCOUNT_CREDENTIALS API Key.");
+    process.exit(1);
+}
+
+const auth = new google.auth.GoogleAuth({
+    credentials: GOOGLE_SERVICE_ACCOUNT_CREDENTIALS,
+    scopes: ['https://www.googleapis.com/auth/spreadsheets']
+});
+const sheets = google.sheets({ version: 'v4', auth });
+
+// Define your Google Spreadsheet ID
 const SPREADSHEET_ID = '15F5xx-Gb7Pl50UmXL_WNqAzIs8uP0vDkRv6uP9fytSk';
 
 // Helper function to get data from the JSON file
@@ -62,14 +72,13 @@ function generateSheetName() {
     return `${date}-${commitSha}`;
 }
 
-// Append data to Google Sheets using the public API key
+// Append data to Google Sheets using Service Account
 async function appendToGoogleSheet(table) {
     const sheetName = generateSheetName();
 
-    // Create a new sheet in the Google Sheet
+    // Create a new sheet
     await sheets.spreadsheets.batchUpdate({
         spreadsheetId: SPREADSHEET_ID,
-        key: GOOGLE_API_KEY, // Using the public API Key here
         requestBody: {
             requests: [
                 {
@@ -94,7 +103,6 @@ async function appendToGoogleSheet(table) {
         spreadsheetId: SPREADSHEET_ID,
         range: `${sheetName}!A1`,
         valueInputOption: 'RAW',
-        key: GOOGLE_API_KEY,  // Using the public API Key here
         requestBody: {
             values: values
         }
