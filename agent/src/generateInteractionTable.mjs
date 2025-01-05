@@ -19,7 +19,7 @@ if (!apiKey) {
 const openai = new OpenAI({ apiKey });
 
 // Google Sheets setup using API Key
-const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+const GOOGLE_API_KEY = process.env.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS;
 const sheets = google.sheets('v4');
 
 // Define your Google Spreadsheet ID here
