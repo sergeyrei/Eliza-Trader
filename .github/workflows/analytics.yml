@@ -31,14 +31,14 @@ jobs:
       - name: Install Dependencies Using pnpm
         run: pnpm install --frozen-lockfile
 
-      # ✅ Run the script and generate the Google Sheet table
+      # ✅ Run the script and generate the Google Sheet table using Service Account
       - name: Run OpenAI Interaction Table Script
         run: pnpm run generate-interaction
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          GOOGLE_SERVICE_ACCOUNT_CREDENTIALS: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
 
       # ✅ Display Google Sheets result URL
       - name: Display Google Sheet URL
         run: |
-          echo "Google Sheets URL: https://docs.google.com/spreadsheets/d/15F5xx-Gb7Pl50UmXL_WNqAzIs8uP0vDkRv6uP9fytSk"
+          echo "✅ Google Sheets URL: https://docs.google.com/spreadsheets/d/15F5xx-Gb7Pl50UmXL_WNqAzIs8uP0vDkRv6uP9fytSk"
