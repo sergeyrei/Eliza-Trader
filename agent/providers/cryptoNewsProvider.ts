@@ -8,7 +8,7 @@ const cryptoNewsProvider: Provider = {
 
             const formattedNews = newsArticles.map(article => `Title: ${article.title}\nLink: ${article.link}\nDate: ${article.pubDate}\nSource: ${article.source}`).join("\n\n");
 
-            elizaLogger.log("Fetched crypto news:", { formattedNews });
+            elizaLogger.log("Fetched crypto news:");
 
             return formattedNews || "No crypto news available at the moment.";
         } catch (error) {

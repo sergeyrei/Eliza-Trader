@@ -44,7 +44,7 @@ import {
     webhookPlugin,
 } from "@elizaos/plugin-coinbase";
 import { confluxPlugin } from "@elizaos/plugin-conflux";
-import { evmPlugin } from "@elizaos/plugin-evm";
+import { evmPlugin, transferAction } from "@elizaos/plugin-evm";
 import { storyPlugin } from "@elizaos/plugin-story";
 import { flowPlugin } from "@elizaos/plugin-flow";
 import { fuelPlugin } from "@elizaos/plugin-fuel";
@@ -612,7 +612,7 @@ export async function createAgent(
                 : null,
         ].filter(Boolean),
         providers: [timeProvider, cryptoPriceProvider, cryptoNewsProvider],
-        actions: [],
+        actions: [transferAction],
         services: [],
         managers: [],
         cacheManager: cache,

@@ -32,7 +32,7 @@ export const getMarketData = async () => {
         }
 
         const data = await response.json();
-        elizaLogger.log("Market data fetched successfully.", { data });
+        elizaLogger.log("Market data fetched successfully.");
         return data;
     } catch (error) {
         elizaLogger.error("Error fetching market data:", error.message || error);
@@ -102,7 +102,7 @@ export const getCryptoNews = async () => {
             }))
         );
 
-        elizaLogger.log("Crypto news fetched successfully.", { articles });
+        elizaLogger.log("Crypto news fetched successfully.");
         return articles;
     } catch (error) {
         elizaLogger.error("Error fetching crypto news:", error.message || error);

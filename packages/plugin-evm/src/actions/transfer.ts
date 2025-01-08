@@ -8,7 +8,7 @@ import {
     type Memory,
     type State,
 } from "@elizaos/core";
-
+import { elizaLogger } from "@elizaos/core";
 import { initWalletProvider, WalletProvider } from "../providers/wallet";
 import type { Transaction, TransferParams } from "../types";
 import { transferTemplate } from "../templates";
@@ -115,6 +115,7 @@ export const transferAction = {
         callback?: HandlerCallback
     ) => {
         console.log("Transfer action handler called");
+
         const walletProvider = initWalletProvider(runtime);
         const action = new TransferAction(walletProvider);
 
@@ -125,8 +126,16 @@ export const transferAction = {
             walletProvider
         );
 
+        elizaLogger.log("Transfer action handler called.");
+        elizaLogger.log("Transfer details:", JSON.stringify(paramOptions, null, 2));
+
         try {
             const transferResp = await action.transfer(paramOptions);
+            elizaLogger.log(`Successfully transferred ${paramOptions.amount} tokens to ${paramOptions.toAddress}`);
+            elizaLogger.log(`Transaction Hash: ${transferResp.hash}`);
+            elizaLogger.log(`Token amount: ${formatEther(transferResp.value)}`);
+            elizaLogger.log(`Recipient Address: ${transferResp.to}`);
+            elizaLogger.log(`Chain ID: ${paramOptions.fromChain}`);
             if (callback) {
                 callback({
                     text: `Successfully transferred ${paramOptions.amount} tokens to ${paramOptions.toAddress}\nTransaction Hash: ${transferResp.hash}`,
@@ -142,6 +151,7 @@ export const transferAction = {
             return true;
         } catch (error) {
             console.error("Error during token transfer:", error);
+            elizaLogger.log("Transfer action errored.", { error });
             if (callback) {
                 callback({
                     text: `Error transferring tokens: ${error.message}`,
