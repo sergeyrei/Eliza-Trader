@@ -609,7 +609,7 @@ export async function createAgent(
                 : null,
         ].filter(Boolean),
         providers: [timeProvider, cryptoPriceProvider, cryptoNewsProvider],
-        actions: [transferAction],
+        actions: [],
         services: [],
         managers: [],
         cacheManager: cache,
