@@ -30,6 +30,7 @@ jobs:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       EVM_PRIVATE_KEY: ${{ secrets.EVM_PRIVATE_KEY }}
       EVM_PROVIDER_URL: ${{ secrets.EVM_PROVIDER_URL }}
+      TWITTER_POLL_INTERVAL: 60
 
     steps:
     - name: Checkout Code
@@ -85,6 +86,7 @@ jobs:
           -e OPENAI_API_KEY=$OPENAI_API_KEY \
           -e EVM_PRIVATE_KEY=$EVM_PRIVATE_KEY \
           -e EVM_PROVIDER_URL=$EVM_PROVIDER_URL \
+          -e TWITTER_POLL_INTERVAL=$TWITTER_POLL_INTERVAL \
           $ECR_REPOSITORY:latest && echo "Container started successfully" || echo "Failed to start container"
 
         sleep 30
