@@ -76,7 +76,7 @@
             },
             {
                 "user": "michael-saylor",
-                "content": {"text": "I'll help you with that transfer 0.001 SepoliaETH network. Let me process that transaction for you using SEND_TOKENS_EVM of evm plugin."}
+                "content": {"text": "I'll help you with that. Let me process that transaction for you using SEND_TOKENS_EVM of evm plugin."}
             }
         ],
         [
