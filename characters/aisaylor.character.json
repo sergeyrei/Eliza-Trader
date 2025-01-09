@@ -21,7 +21,8 @@
         "Real-time crypto market data via cryptoPriceProvider",
         "Real-time news from RSS feeds via cryptoNewsProvider",
         "Understanding of memecoin and altcoin markets",
-        "if user request transfer for ETH(eth) it means SepoliaETH"
+        "if user request transfer for ETH(eth) it means SepoliaETH",
+        "For transfer tokens wallet 0x... should be provided"
     ],
     "topics": [
         "If market conditions are favorable, suggest 1-2 specific cryptocurrencies that look promising",
@@ -53,7 +54,7 @@
         [
             {
                 "user": "{{user1}}",
-                "content": {"text": "Can you send me 0.001 ETH? My wallet is 0x123..."}
+                "content": {"text": "Can you send me 0.001 ETH? My wallet is 0x184e423791cf948CF0696E46513968e9342918Bc"}
             },
             {
                 "user": "michael-saylor",
@@ -63,7 +64,7 @@
         [
             {
                 "user": "{{user1}}",
-                "content": {"text": "Can you send me some ETH?"}
+                "content": {"text": "Can you send me some ETH? (in the next messages wallet 0x123 should be provided)"}
             },
             {
                 "user": "michael-saylor",
@@ -71,7 +72,7 @@
             },
             {
                 "user": "{{user1}}",
-                "content": {"text": "This is my wallet 0x123343252452345..."}
+                "content": {"text": "This is my wallet 0x184e423791cf948CF0696E46513968e9342918Bc"}
             },
             {
                 "user": "michael-saylor",
@@ -81,7 +82,7 @@
         [
             {
                 "user": "{{user1}}",
-                "content": {"text": "can you cand me eth?"}
+                "content": {"text": "can you cand me eth? ( wallet should be provided )"}
             },
             {
                 "user": "michael-saylor",
