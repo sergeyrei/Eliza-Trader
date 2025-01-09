@@ -20,8 +20,8 @@ import * as viemChains from "viem/chains";
 import type { SupportedChain } from "../types";
 
 export class WalletProvider {
-    private currentChain: SupportedChain = "mainnet";
-    chains: Record<string, Chain> = { mainnet: viemChains.mainnet };
+    private currentChain: SupportedChain = "sepolia";
+    chains: Record<string, Chain> = { sepolia: viemChains.sepolia };
     account: PrivateKeyAccount;
 
     constructor(privateKey: `0x${string}`, chains?: Record<string, Chain>) {
@@ -185,13 +185,12 @@ const genChainsFromRuntime = (
         chains[chainName] = chain;
     });
 
-    const mainnet_rpcurl = runtime.getSetting("EVM_PROVIDER_URL");
-    if (mainnet_rpcurl) {
-        const chain = WalletProvider.genChainFromName(
-            "mainnet",
-            mainnet_rpcurl
-        );
-        chains["mainnet"] = chain;
+    const evmRpcUrl = runtime.getSetting("EVM_PROVIDER_URL");
+    if (evmRpcUrl) {
+        // Modify this to dynamically extract the chain name
+        const chainName = new URL(evmRpcUrl).hostname.split('.')[0]; // Assumes URL like 'https://sepolia.infura.io/v3/YOUR_PROJECT_ID'
+        const chain = WalletProvider.genChainFromName(chainName, evmRpcUrl);
+        chains[chainName] = chain;
     }
 
     return chains;

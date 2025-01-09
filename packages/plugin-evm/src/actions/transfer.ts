@@ -184,5 +184,5 @@ export const transferAction = {
             },
         ],
     ],
-    similes: ["SEND_TOKENS", "TOKEN_TRANSFER", "MOVE_TOKENS"],
+    similes: ["SEND_TOKENS_EVM", "TOKEN_TRANSFER", "MOVE_TOKENS"],
 };

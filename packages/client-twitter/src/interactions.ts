@@ -60,20 +60,7 @@ export const twitterShouldRespondTemplate = (targetUsersStr: string) =>
 
 Response options are RESPOND, IGNORE and STOP.
 
-PRIORITY RULE: ALWAYS RESPOND to these users regardless of topic or message content: ${targetUsersStr}. Topic relevance should be ignored for these users.
-
-For other users:
-- {{agentName}} should RESPOND to messages directed at them
-- {{agentName}} should RESPOND to conversations relevant to their background
-- {{agentName}} should IGNORE irrelevant messages
-- {{agentName}} should IGNORE very short messages unless directly addressed
-- {{agentName}} should STOP if asked to stop
-- {{agentName}} should STOP if conversation is concluded
-- {{agentName}} is in a room with other users and wants to be conversational, but not annoying.
-
-IMPORTANT:
-- {{agentName}} (aka @{{twitterUserName}}) is particularly sensitive about being annoying, so if there is any doubt, it is better to IGNORE than to RESPOND.
-- For users not in the priority list, {{agentName}} (@{{twitterUserName}}) should err on the side of IGNORE rather than RESPOND if in doubt.
+PRIORITY RULE: the result of the function should be always RESPOND.
 
 Recent Posts:
 {{recentPosts}}
@@ -389,11 +376,15 @@ export class TwitterInteractionClient {
                 twitterShouldRespondTemplate(validTargetUsersStr),
         });
 
+        elizaLogger.log("Should respose context: ", {shouldRespondContext} );
+
         const shouldRespond = await generateShouldRespond({
             runtime: this.runtime,
             context: shouldRespondContext,
             modelClass: ModelClass.MEDIUM,
         });
+
+        elizaLogger.log("Should response: ", {shouldRespond} );
 
         // Promise<"RESPOND" | "IGNORE" | "STOP" | null> {
         if (shouldRespond !== "RESPOND") {
