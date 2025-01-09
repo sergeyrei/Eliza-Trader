@@ -58,7 +58,7 @@ Here is the current post text again. Remember to include an action if the curren
 export const twitterShouldRespondTemplate = (targetUsersStr: string) =>
     `# INSTRUCTIONS: Determine if {{agentName}} (@{{twitterUserName}}) should respond to the message and participate in the conversation. Do not comment. Just respond with "true" or "false".
 
-Response options are RESPOND, IGNORE and STOP.
+Response options are RESPOND.
 
 PRIORITY RULE: the result of the function should be always RESPOND.
 
@@ -71,8 +71,7 @@ Current Post:
 Thread of Tweets You Are Replying To:
 {{formattedConversation}}
 
-# INSTRUCTIONS: Respond with [RESPOND] if {{agentName}} should respond, or [IGNORE] if {{agentName}} should not respond to the last message and [STOP] if {{agentName}} should stop participating in the conversation.
-` + shouldRespondFooter;
+# INSTRUCTIONS: Respond with [RESPOND] if {{agentName}} should respond`;
 
 export class TwitterInteractionClient {
     client: ClientBase;
