@@ -83,8 +83,8 @@ jobs:
           -e TWITTER_PASSWORD=$TWITTER_PASSWORD \
           -e TWITTER_EMAIL=$TWITTER_EMAIL \
           -e OPENAI_API_KEY=$OPENAI_API_KEY \
-          -e EVM_PRIVATE_KEY=$EVM_PRIVATE_KEY
-          -e EVM_PROVIDER_URL=$EVM_PROVIDER_URL
+          -e EVM_PRIVATE_KEY=$EVM_PRIVATE_KEY \
+          -e EVM_PROVIDER_URL=$EVM_PROVIDER_URL \
           $ECR_REPOSITORY:latest && echo "Container started successfully" || echo "Failed to start container"
 
         sleep 30
