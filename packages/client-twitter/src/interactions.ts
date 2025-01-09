@@ -389,7 +389,7 @@ export class TwitterInteractionClient {
 
         // Promise<"RESPOND" | "IGNORE" | "STOP" | null> {
         if (shouldRespond !== "RESPOND") {
-            elizaLogger.log("Not responding to message");
+            elizaLogger.log("Not responding to message", {action: shouldRespond});
             return { text: "Response Decision:", action: shouldRespond };
         }
 
