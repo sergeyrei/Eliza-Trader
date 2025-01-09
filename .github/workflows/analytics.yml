@@ -1,12 +1,11 @@
-name: Generate Interaction Table with OpenAI and Deploy to GitHub Pages
+name: Generate Interaction Table with OpenAI and Deploy to Google Sheets
 
 on:
   push:
     branches:
-      - main  # Always trigger on any change in the model branch
+      - model
     paths:
-      - 'characters/**'
-  workflow_dispatch:  # Allow manual triggering
+      - 'characters/*.json'
 
 jobs:
   run-openai-test:
@@ -32,8 +31,14 @@ jobs:
       - name: Install Dependencies Using pnpm
         run: pnpm install --frozen-lockfile
 
-      # ✅ Run the script and generate the Excel file
+      # ✅ Run the script and generate the Google Sheet table using Service Account
       - name: Run OpenAI Interaction Table Script
         run: pnpm run generate-interaction
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GOOGLE_SERVICE_ACCOUNT_CREDENTIALS: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
+
+      # ✅ Display Google Sheets result URL
+      - name: Display Google Sheet URL
+        run: |
+          echo "✅ Google Sheets URL: https://docs.google.com/spreadsheets/d/15F5xx-Gb7Pl50UmXL_WNqAzIs8uP0vDkRv6uP9fytSk"
