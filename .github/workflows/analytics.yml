@@ -3,7 +3,7 @@ name: Generate Interaction Table with OpenAI and Deploy to Google Sheets
 on:
   push:
     branches:
-      - model
+      - main
     paths:
       - 'characters/*.json'
 
