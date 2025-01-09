@@ -7,6 +7,10 @@ on:
     paths:
       - 'characters/*.json'
 
+
+  workflow_dispatch:  # Allow manual triggering
+
+
 jobs:
   run-openai-test:
     runs-on: ubuntu-latest
