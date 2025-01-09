@@ -28,6 +28,8 @@ jobs:
       TWITTER_PASSWORD: ${{ secrets.TWITTER_PASSWORD }}
       TWITTER_EMAIL: ${{ secrets.TWITTER_EMAIL }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      EVM_PRIVATE_KEY: ${{ secrets.EVM_PRIVATE_KEY }}
+      EVM_PROVIDER_URL: ${{ secrets.EVM_PROVIDER_URL }}
 
     steps:
     - name: Checkout Code
