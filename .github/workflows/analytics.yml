@@ -3,7 +3,9 @@ name: Generate Interaction Table with OpenAI and Deploy to GitHub Pages
 on:
   push:
     branches:
-      - model  # Always trigger on any change in the model branch
+      - main  # Always trigger on any change in the model branch
+    paths:
+      - 'characters/**'
   workflow_dispatch:  # Allow manual triggering
 
 jobs:
