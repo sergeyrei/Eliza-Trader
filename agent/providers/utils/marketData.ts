@@ -14,7 +14,7 @@ const COINS = [
     'curve-dao-token', 'dogecoin', 'shiba-inu', 'matic-network',
     'cosmos', 'near', 'pepe', 'floki', 'bonk', 'wojak',
     'singularitynet', 'fetch-ai', 'deepbrain-chain', 'numerai',
-    'ocean-protocol', 'cortex', 'velas', 'iexec-rlc', 'project-pai',
+    'ocean-protocol', 'cortex', 'velas', 'iexec-rlc',
     'matrix-ai-network', 'vectorspace', 'robonomics-network',
     'ai-blockchain', 'todaq', 'neureal', 'seedtoken', 'autonio',
     'tac', 'gnosis', 'graph', 'ai16z'
@@ -84,7 +84,7 @@ export const formatMarketData = (marketData: Record<string, MarketData>) => {
     const altcoins = categorize(['polkadot', 'cosmos', 'near', 'matic-network']);
     const aiAgents = categorize([
         'singularitynet', 'fetch-ai', 'deepbrain-chain', 'numerai',
-        'ocean-protocol', 'cortex', 'velas', 'iexec-rlc', 'project-pai',
+        'ocean-protocol', 'cortex', 'velas', 'iexec-rlc',
         'matrix-ai-network', 'vectorspace', 'robonomics-network',
         'ai-blockchain', 'todaq', 'neureal', 'seedtoken', 'autonio',
         'tac', 'gnosis', 'graph', 'ai16z'
