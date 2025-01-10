@@ -37,6 +37,8 @@ Before providing the final JSON output, show your reasoning process inside <anal
 
 5. Prepare the JSON structure based on your analysis.
 
+6. By default use base chain
+
 After your analysis, provide the final output in a JSON markdown block. All fields except 'token' are required. The JSON should have this structure:
 
 \`\`\`json

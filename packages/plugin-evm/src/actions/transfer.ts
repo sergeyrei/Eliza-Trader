@@ -85,6 +85,8 @@ const buildTransferDetails = async (
         modelClass: ModelClass.SMALL,
     })) as TransferParams;
 
+    elizaLogger.log("transferDetails:", {transferDetails});
+
     const existingChain = wp.chains[transferDetails.fromChain];
 
     if (!existingChain) {
