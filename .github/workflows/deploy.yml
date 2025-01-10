@@ -29,6 +29,7 @@ jobs:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       EVM_PRIVATE_KEY: ${{ secrets.EVM_PRIVATE_KEY }}
       EVM_PROVIDER_URL: ${{ secrets.EVM_PROVIDER_URL }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       TWITTER_POLL_INTERVAL: 60
 
     steps:
@@ -86,6 +87,7 @@ jobs:
           -e EVM_PRIVATE_KEY=$EVM_PRIVATE_KEY \
           -e EVM_PROVIDER_URL=$EVM_PROVIDER_URL \
           -e TWITTER_POLL_INTERVAL=$TWITTER_POLL_INTERVAL \
+          -e ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY \
           $ECR_REPOSITORY:latest && echo "Container started successfully" || echo "Failed to start container"
 
         sleep 30
