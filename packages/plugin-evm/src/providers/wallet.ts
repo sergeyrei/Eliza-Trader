@@ -248,6 +248,8 @@ const genChainsFromRuntime = (
         (runtime.character.settings.chains?.evm as SupportedChain[]) || [];
     const chains = {};
 
+    elizaLogger.log("All chains:", {chainNames})
+
     chainNames.forEach((chainName) => {
         const rpcUrl = runtime.getSetting(
             "ETHEREUM_PROVIDER_" + chainName.toUpperCase()
@@ -255,14 +257,6 @@ const genChainsFromRuntime = (
         const chain = WalletProvider.genChainFromName(chainName, rpcUrl);
         chains[chainName] = chain;
     });
-
-    const evmRpcUrl = runtime.getSetting("EVM_PROVIDER_URL");
-    if (evmRpcUrl) {
-        // Modify this to dynamically extract the chain name
-        const chainName = new URL(evmRpcUrl).hostname.split('.')[0]; // Assumes URL like 'https://sepolia.infura.io/v3/YOUR_PROJECT_ID'
-        const chain = WalletProvider.genChainFromName(chainName, evmRpcUrl);
-        chains[chainName] = chain;
-    }
 
     return chains;
 };
