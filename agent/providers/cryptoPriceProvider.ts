@@ -17,7 +17,7 @@ const cryptoPriceProvider: Provider = {
             }
 
             const formattedData = formatMarketData(marketData);
-            const { layer1s, defi, memecoins, altcoins } = formattedData;
+            const { layer1s, defi, memecoins, altcoins, aiAgents } = formattedData;
 
             let fearGreedResponse;
             try {
@@ -41,6 +41,8 @@ const cryptoPriceProvider: Provider = {
                 ${formatSection("Memecoins", memecoins)}
 
                 ${formatSection("Altcoins", altcoins)}
+
+                ${formatSection("AI Agent coins", aiAgents)}
 
                 Market Sentiment: ${marketSentiment}
             `;

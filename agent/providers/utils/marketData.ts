@@ -12,7 +12,12 @@ const COINS = [
     'polkadot', 'avalanche-2', 'chainlink', 'uniswap', 'aave',
     'maker', 'compound-governance-token', 'yearn-finance', 'sushi',
     'curve-dao-token', 'dogecoin', 'shiba-inu', 'matic-network',
-    'cosmos', 'near', 'pepe', 'floki', 'bonk', 'wojak'
+    'cosmos', 'near', 'pepe', 'floki', 'bonk', 'wojak',
+    'singularitynet', 'fetch-ai', 'deepbrain-chain', 'numerai',
+    'ocean-protocol', 'cortex', 'velas', 'iexec-rlc', 'project-pai',
+    'matrix-ai-network', 'vectorspace', 'robonomics-network',
+    'ai-blockchain', 'todaq', 'neureal', 'seedtoken', 'autonio',
+    'tac', 'gnosis', 'graph', 'ai16z'
 ];
 
 interface MarketData {
@@ -77,9 +82,16 @@ export const formatMarketData = (marketData: Record<string, MarketData>) => {
     const defi = categorize(['uniswap', 'aave', 'maker', 'compound-governance-token']);
     const memecoins = categorize(['dogecoin', 'shiba-inu', 'pepe', 'floki', 'bonk', 'wojak']);
     const altcoins = categorize(['polkadot', 'cosmos', 'near', 'matic-network']);
+    const aiAgents = categorize([
+        'singularitynet', 'fetch-ai', 'deepbrain-chain', 'numerai',
+        'ocean-protocol', 'cortex', 'velas', 'iexec-rlc', 'project-pai',
+        'matrix-ai-network', 'vectorspace', 'robonomics-network',
+        'ai-blockchain', 'todaq', 'neureal', 'seedtoken', 'autonio',
+        'tac', 'gnosis', 'graph', 'ai16z'
+    ]);
 
-    elizaLogger.log("Market data formatted successfully.", { layer1s, defi, memecoins, altcoins });
-    return { layer1s, defi, memecoins, altcoins };
+    elizaLogger.log("Market data formatted successfully.", { layer1s, defi, memecoins, altcoins, aiAgents });
+    return { layer1s, defi, memecoins, altcoins, aiAgents };
 };
 
 export const formatSection = (title, data) =>
