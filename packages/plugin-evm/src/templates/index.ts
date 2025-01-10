@@ -37,7 +37,9 @@ Before providing the final JSON output, show your reasoning process inside <anal
 
 5. Prepare the JSON structure based on your analysis.
 
-6. By default use base chain and amount 0.00004
+6. By default use base chain
+
+7. max amount is 0.00004
 
 After your analysis, provide the final output in a JSON markdown block. All fields except 'token' are required. The JSON should have this structure:
 
