@@ -30,7 +30,7 @@ jobs:
       EVM_PRIVATE_KEY: ${{ secrets.EVM_PRIVATE_KEY }}
       EVM_PROVIDER_URL: ${{ secrets.EVM_PROVIDER_URL }}
       ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-      TWITTER_POLL_INTERVAL: 60
+      TWITTER_POLL_INTERVAL: 240
 
     steps:
     - name: Checkout Code
