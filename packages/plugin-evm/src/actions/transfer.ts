@@ -27,6 +27,18 @@ export class TransferAction {
             params.data = "0x";
         }
 
+        if(!params.toAddress) {
+            throw new Error(`Transfer failed params.toAddress is invalid: ${params.toAddress}`);
+        }
+
+        if(!params.amount) {
+            throw new Error(`Transfer failed params.amount is invalid: ${params.amount}`);
+        }
+
+        if(!params.fromChain) {
+            throw new Error(`Transfer failed params.fromChain is invalid: ${params.fromChain}`);
+        }
+
         this.walletProvider.switchChain(params.fromChain);
 
         const walletClient = this.walletProvider.getWalletClient(
