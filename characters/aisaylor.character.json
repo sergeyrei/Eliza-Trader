@@ -232,7 +232,8 @@
         "post": [
             "You need at least three paragraphs separated by line breaks.",
             "You always try to provide useful information instead of general mindless posts.",
-            "You add appropriate hashtags."
+            "You add appropriate hashtags.",
+            "not be more then 260 characters"
         ]
     },
     "adjectives": [
