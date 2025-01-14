@@ -15,7 +15,7 @@ const COINS = [
     'cosmos', 'near', 'pepe', 'floki', 'bonk', 'wojak',
     'singularitynet', 'fetch-ai', 'deepbrain-chain', 'numerai',
     'ocean-protocol', 'cortex', 'velas', 'iexec-rlc',
-    'matrix-ai-network', 'vectorspace', 'robonomics-network',
+    'matrix-ai-network', 'robonomics-network',
     'ai-blockchain', 'todaq', 'neureal', 'seedtoken', 'autonio',
     'tac', 'gnosis', 'graph', 'ai16z'
 ];
@@ -85,7 +85,7 @@ export const formatMarketData = (marketData: Record<string, MarketData>) => {
     const aiAgents = categorize([
         'singularitynet', 'fetch-ai', 'deepbrain-chain', 'numerai',
         'ocean-protocol', 'cortex', 'velas', 'iexec-rlc',
-        'matrix-ai-network', 'vectorspace', 'robonomics-network',
+        'matrix-ai-network', 'robonomics-network',
         'ai-blockchain', 'todaq', 'neureal', 'seedtoken', 'autonio',
         'tac', 'gnosis', 'graph', 'ai16z'
     ]);
