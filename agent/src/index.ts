@@ -72,8 +72,9 @@ import { fileURLToPath } from "url";
 import yargs from "yargs";
 import net from "net";
 import { timeProvider } from "../providers/timeProvider";
-import { cryptoPriceProvider } from "../providers/cryptoPriceProvider"
+import { cryptoPriceProvider } from "../providers/cryptoPriceProvider";
 import { cryptoNewsProvider } from "../providers/cryptoNewsProvider";
+import { aerodromPlugin } from "@elizaos/plugin-aerodrome";
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
@@ -380,8 +381,7 @@ function initializeDatabase(dataDir: string) {
             });
 
         return db;
-    }
-    else {
+    } else {
         const filePath =
             process.env.SQLITE_FILE ?? path.resolve(dataDir, "db.sqlite");
         // ":memory:";
@@ -550,9 +550,7 @@ export async function createAgent(
             getSecret(character, "NEAR_WALLET_SECRET_KEY")
                 ? nearPlugin
                 : null,
-            getSecret(character, "EVM_PRIVATE_KEY")
-                ? evmPlugin
-                : null,
+            getSecret(character, "EVM_PRIVATE_KEY") ? evmPlugin : null,
             (getSecret(character, "SOLANA_PUBLIC_KEY") ||
                 (getSecret(character, "WALLET_PUBLIC_KEY") &&
                     !getSecret(character, "WALLET_PUBLIC_KEY")?.startsWith(

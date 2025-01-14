@@ -5,7 +5,14 @@ import {
     http,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { type IAgentRuntime, type Provider, type Memory, type State, type ICacheManager, elizaLogger } from "@elizaos/core";
+import {
+    type IAgentRuntime,
+    type Provider,
+    type Memory,
+    type State,
+    type ICacheManager,
+    elizaLogger,
+} from "@elizaos/core";
 import type {
     Address,
     WalletClient,
@@ -80,7 +87,7 @@ export class WalletProvider {
     getChainConfigs(chainName: SupportedChain): Chain {
         const chain = viemChains[chainName];
 
-        elizaLogger.log("chainName:: getChainConfigs", {chainName});
+        elizaLogger.log("chainName:: getChainConfigs", { chainName });
 
         if (!chain?.id) {
             throw new Error("Invalid chain name");
@@ -93,7 +100,10 @@ export class WalletProvider {
         const cacheKey = "walletBalance_" + this.currentChain;
         const cachedData = await this.getCachedData<string>(cacheKey);
         if (cachedData) {
-            elizaLogger.log("Returning cached wallet balance for chain: " + this.currentChain);
+            elizaLogger.log(
+                "Returning cached wallet balance for chain: " +
+                    this.currentChain
+            );
             return cachedData;
         }
 
@@ -104,7 +114,10 @@ export class WalletProvider {
             });
             const balanceFormatted = formatUnits(balance, 18);
             this.setCachedData<string>(cacheKey, balanceFormatted);
-            elizaLogger.log("Wallet balance cached for chain: ", this.currentChain);
+            elizaLogger.log(
+                "Wallet balance cached for chain: ",
+                this.currentChain
+            );
             return balanceFormatted;
         } catch (error) {
             console.error("Error getting wallet balance:", error);
@@ -219,7 +232,7 @@ export class WalletProvider {
     ): Chain {
         const baseChain = viemChains[chainName];
 
-        elizaLogger.log("chainName:: genChainFromName", {chainName});
+        elizaLogger.log("chainName:: genChainFromName", { chainName });
 
         if (!baseChain?.id) {
             throw new Error("Invalid chain name");
@@ -248,7 +261,7 @@ const genChainsFromRuntime = (
         (runtime.character.settings.chains?.evm as SupportedChain[]) || [];
     const chains = {};
 
-    elizaLogger.log("All chains:", {chainNames})
+    elizaLogger.log("All chains:", { chainNames });
 
     chainNames.forEach((chainName) => {
         const rpcUrl = runtime.getSetting(
@@ -280,7 +293,11 @@ export const initWalletProvider = async (runtime: IAgentRuntime) => {
             walletSecretSalt,
             runtime.agentId
         );
-        return new WalletProvider(deriveKeyResult.keypair, runtime.cacheManager, chains);
+        return new WalletProvider(
+            deriveKeyResult.keypair,
+            runtime.cacheManager,
+            chains
+        );
     } else {
         const privateKey = runtime.getSetting(
             "EVM_PRIVATE_KEY"
