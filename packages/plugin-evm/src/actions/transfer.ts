@@ -27,16 +27,22 @@ export class TransferAction {
             params.data = "0x";
         }
 
-        if(!params.toAddress) {
-            throw new Error(`Transfer failed params.toAddress is invalid: ${params.toAddress}`);
+        if (!params.toAddress) {
+            throw new Error(
+                `Transfer failed params.toAddress is invalid: ${params.toAddress}`
+            );
         }
 
-        if(!params.amount) {
-            throw new Error(`Transfer failed params.amount is invalid: ${params.amount}`);
+        if (!params.amount) {
+            throw new Error(
+                `Transfer failed params.amount is invalid: ${params.amount}`
+            );
         }
 
-        if(!params.fromChain) {
-            throw new Error(`Transfer failed params.fromChain is invalid: ${params.fromChain}`);
+        if (!params.fromChain) {
+            throw new Error(
+                `Transfer failed params.fromChain is invalid: ${params.fromChain}`
+            );
         }
 
         this.walletProvider.switchChain(params.fromChain);
@@ -97,7 +103,9 @@ const buildTransferDetails = async (
         modelClass: ModelClass.SMALL,
     })) as TransferParams;
 
-    elizaLogger.log("transferDetails:", {transferDetails});
+    transferDetails.fromChain = "base";
+
+    elizaLogger.log("transferDetails:", { transferDetails });
 
     const existingChain = wp.chains[transferDetails.fromChain];
 
@@ -141,11 +149,16 @@ export const transferAction: Action = {
         );
 
         elizaLogger.log("Transfer action handler called.");
-        elizaLogger.log("Transfer details:", JSON.stringify(paramOptions, null, 2));
+        elizaLogger.log(
+            "Transfer details:",
+            JSON.stringify(paramOptions, null, 2)
+        );
 
         try {
             const transferResp = await action.transfer(paramOptions);
-            elizaLogger.log(`Successfully transferred ${paramOptions.amount} tokens to ${paramOptions.toAddress}`);
+            elizaLogger.log(
+                `Successfully transferred ${paramOptions.amount} tokens to ${paramOptions.toAddress}`
+            );
             elizaLogger.log(`Transaction Hash: ${transferResp.hash}`);
             elizaLogger.log(`Token amount: ${formatEther(transferResp.value)}`);
             elizaLogger.log(`Recipient Address: ${transferResp.to}`);
