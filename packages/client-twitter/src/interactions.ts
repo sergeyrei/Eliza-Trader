@@ -58,10 +58,11 @@ Here is the current post text again. Remember to include an action if the curren
 export const twitterShouldRespondTemplate = (targetUsersStr: string) =>
     `# INSTRUCTIONS: Determine if {{agentName}} (@{{twitterUserName}}) should respond to the message and participate in the conversation. Do not comment. Just respond with "true" or "false".
 Response options are RESPOND, IGNORE and STOP.
-PRIORITY RULE: ALWAYS RESPOND to these users regardless of topic or message content.
 For other users:
 - {{agentName}} should RESPOND to messages directed at them
 - {{agentName}} should RESPOND to conversations relevant to their background
+- {{agentName}} should RESPOND if message related to somehow to money, ETH, crypto etc.
+- {{agentName}} should RESPOND if you have asked to provide some money etc.
 - {{agentName}} should STOP if asked to stop
 - {{agentName}} should STOP if conversation is concluded
 - {{agentName}} is in a room with other users and wants to be conversational, but not annoying.
