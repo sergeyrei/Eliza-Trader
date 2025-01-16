@@ -383,11 +383,12 @@ export class TwitterInteractionClient {
 
         elizaLogger.log("Should respose context: ", { shouldRespondContext });
 
-        const shouldRespond = await generateShouldRespond({
-            runtime: this.runtime,
-            context: shouldRespondContext,
-            modelClass: ModelClass.MEDIUM,
-        });
+        const shouldRespond = "RESPOND";
+        // await generateShouldRespond({
+        //     runtime: this.runtime,
+        //     context: shouldRespondContext,
+        //     modelClass: ModelClass.MEDIUM,
+        // });
 
         elizaLogger.log("Should response: ", { shouldRespond });
 
