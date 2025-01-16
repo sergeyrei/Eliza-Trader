@@ -57,21 +57,24 @@ Here is the current post text again. Remember to include an action if the curren
 
 export const twitterShouldRespondTemplate = (targetUsersStr: string) =>
     `# INSTRUCTIONS: Determine if {{agentName}} (@{{twitterUserName}}) should respond to the message and participate in the conversation. Do not comment. Just respond with "true" or "false".
-
-Response options are RESPOND.
-
-PRIORITY RULE: the result of the function should be always RESPOND.
-
+Response options are RESPOND, IGNORE and STOP.
+PRIORITY RULE: ALWAYS RESPOND to these users regardless of topic or message content.
+For other users:
+- {{agentName}} should RESPOND to messages directed at them
+- {{agentName}} should RESPOND to conversations relevant to their background
+- {{agentName}} should STOP if asked to stop
+- {{agentName}} should STOP if conversation is concluded
+- {{agentName}} is in a room with other users and wants to be conversational, but not annoying.
+IMPORTANT:
+- For users not in the priority list, {{agentName}} (@{{twitterUserName}}) should err on the side of IGNORE rather than RESPOND if in doubt.
 Recent Posts:
 {{recentPosts}}
-
 Current Post:
 {{currentPost}}
-
 Thread of Tweets You Are Replying To:
 {{formattedConversation}}
-
-# INSTRUCTIONS: Respond with [RESPOND] if {{agentName}} should respond`;
+# INSTRUCTIONS: Respond with [RESPOND] if {{agentName}} should respond, or [IGNORE] if {{agentName}} should not respond to the last message and [STOP] if {{agentName}} should stop participating in the conversation.
+` + shouldRespondFooter;
 
 export class TwitterInteractionClient {
     client: ClientBase;
@@ -114,7 +117,8 @@ export class TwitterInteractionClient {
             let uniqueTweetCandidates = [...mentionCandidates];
             // Only process target users if configured
             if (this.client.twitterConfig.TWITTER_TARGET_USERS.length) {
-                const TARGET_USERS = this.client.twitterConfig.TWITTER_TARGET_USERS;
+                const TARGET_USERS =
+                    this.client.twitterConfig.TWITTER_TARGET_USERS;
 
                 elizaLogger.log("Processing target users:", TARGET_USERS);
 
@@ -364,7 +368,8 @@ export class TwitterInteractionClient {
         }
 
         // get usernames into str
-        const validTargetUsersStr = this.client.twitterConfig.TWITTER_TARGET_USERS.join(",");
+        const validTargetUsersStr =
+            this.client.twitterConfig.TWITTER_TARGET_USERS.join(",");
 
         const shouldRespondContext = composeContext({
             state,
@@ -375,21 +380,21 @@ export class TwitterInteractionClient {
                 twitterShouldRespondTemplate(validTargetUsersStr),
         });
 
-        elizaLogger.log("Should respose context: ", {shouldRespondContext} );
+        elizaLogger.log("Should respose context: ", { shouldRespondContext });
 
-        const shouldRespond = "RESPOND";
+        const shouldRespond = await generateShouldRespond({
+            runtime: this.runtime,
+            context: shouldRespondContext,
+            modelClass: ModelClass.MEDIUM,
+        });
 
-        // await generateShouldRespond({
-        //     runtime: this.runtime,
-        //     context: shouldRespondContext,
-        //     modelClass: ModelClass.MEDIUM,
-        // });
-
-        elizaLogger.log("Should response: ", {shouldRespond} );
+        elizaLogger.log("Should response: ", { shouldRespond });
 
         // Promise<"RESPOND" | "IGNORE" | "STOP" | null> {
         if (shouldRespond !== "RESPOND") {
-            elizaLogger.log("Not responding to message", {action: shouldRespond});
+            elizaLogger.log("Not responding to message", {
+                action: shouldRespond,
+            });
             return { text: "Response Decision:", action: shouldRespond };
         }
 
