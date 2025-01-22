@@ -6,13 +6,22 @@ const cryptoNewsProvider: Provider = {
         try {
             const newsArticles = await getCryptoNews();
 
-            const formattedNews = newsArticles.map(article => `Title: ${article.title}\nLink: ${article.link}\nDate: ${article.pubDate}\nSource: ${article.source}`).join("\n\n");
+            const formattedNews = newsArticles
+                .slice(0, 5)
+                .map(
+                    (article) =>
+                        `Title: ${article.title}\nLink: ${article.link}\nDate: ${article.pubDate}\nSource: ${article.source}`
+                )
+                .join("\n\n");
 
             elizaLogger.log("Fetched crypto news:");
 
             return formattedNews || "No crypto news available at the moment.";
         } catch (error) {
-            elizaLogger.error("Error in cryptoNewsProvider:", error.message || error);
+            elizaLogger.error(
+                "Error in cryptoNewsProvider:",
+                error.message || error
+            );
             return "Unable to fetch cryptocurrency news at the moment. Please check your connection or try again later.";
         }
     },
