@@ -94,7 +94,6 @@ jobs:
                     -e POST_INTERVAL_MIN=$POST_INTERVAL_MIN \
                     -e POST_INTERVAL_MAX=$POST_INTERVAL_MAX \
                     -e POST_IMMEDIATELY=$POST_IMMEDIATELY \
-                    -e SHOW_ENV_VARS=true
                     $ECR_REPOSITORY:latest && echo "Container started successfully" || echo "Failed to start container"
 
                   sleep 30
