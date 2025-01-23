@@ -1,12 +1,7 @@
 import {
-    aerodromeWalletProvider,
-    initWalletProvider,
-} from "../providers/wallet";
-import {
-    Plugin,
-    IAgentRuntime,
-    Memory,
-    State,
+    type IAgentRuntime,
+    type Memory,
+    type State,
     ModelClass,
     generateObjectDeprecated,
     composeContext,
@@ -14,141 +9,243 @@ import {
 } from "@elizaos/core";
 import { ethers } from "ethers";
 import { swapTemplate } from "../templates";
+import { AERODROME_ABI } from "../contracts/aerodromeAbi";
+import { AERODROM_FACTORY_ABI } from "../contracts/aerodromFactory";
 
-export const ROUTER_ADDRESS =
-    "0xcF77a3Ba9A5CA399B7c97c74d54e5b1Beb874E43" as const;
+const AERODROME_ROUTER = "0xcF77a3Ba9A5CA399B7c97c74d54e5b1Beb874E43";
 
-export const swapAction = {
-    name: "swapAction",
-    similes: ["SWAP_ON_AERODROME", "PERFORM_EXCHANGE"],
-    description: "Perform a token swap on Aerodrome Finance on Base chain",
-    handler: async (
-        runtime: IAgentRuntime,
-        message: Memory,
-        state: State,
-        _options: any,
-        callback?: Function
-    ) => {
-        if (!state) {
-            state = (await runtime.composeState(message)) as State;
-        } else {
-            state = await runtime.updateRecentMessageState(state);
+const ERC20_ABI = [
+    {
+        inputs: [
+            { name: "spender", type: "address" },
+            { name: "amount", type: "uint256" },
+        ],
+        name: "approve",
+        outputs: [{ name: "success", type: "bool" }],
+        stateMutability: "nonpayable",
+        type: "function",
+    },
+];
+
+async function approveToken(wallet, tokenAddress, spender, amount) {
+    console.log("Starting token approval process...");
+    const tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, wallet);
+    console.log(`Approving ${amount} tokens for spender ${spender}...`);
+
+    const tx = await tokenContract.approve(
+        spender,
+        ethers.parseUnits(amount, 18)
+    );
+    console.log("Approval transaction sent:", tx.hash);
+    await tx.wait();
+    console.log("Approval confirmed.");
+    console.log("Token approval process completed.");
+}
+
+async function performSwap(wallet) {
+    try {
+        console.log("Starting swap process...");
+
+        // Hardcoded values
+        const AERODROME_ROUTER = "0xcF77a3Ba9A5CA399B7c97c74d54e5b1Beb874E43";
+        const AERODROME_FACTORY = "0x420DD381b31aEf6683db6B902084cB0FFECe40Da";
+        const TOKEN_IN = "0x4200000000000000000000000000000000000006"; // Replace with a valid token address
+        const TOKEN_OUT = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"; // Replace with a valid token address
+        const RECIPIENT = wallet.address; // Assuming the wallet address is the recipient
+        const AMOUNT_IN = "0.0001"; // Using 0.0001 ETH as the desired amount
+        const DEADLINE = Math.floor(Date.now() / 1000) + 1200; // 20 minutes from now
+        const AMOUNT_OUT_MIN_PERCENTAGE = 95; // Minimum acceptable output (95% of input)
+
+        console.log(
+            `Initializing contract with router address: ${AERODROME_ROUTER}`
+        );
+        const router = new ethers.Contract(
+            AERODROME_ROUTER,
+            AERODROME_ABI,
+            wallet
+        );
+
+        // Validation: Check token addresses
+        if (!ethers.isAddress(TOKEN_IN) || !ethers.isAddress(TOKEN_OUT)) {
+            throw new Error("Invalid token addresses provided.");
         }
 
-        console.log("Swap action handler called");
-        const wallet = await initWalletProvider(runtime);
+        // Validation: Check recipient address
+        if (!ethers.isAddress(RECIPIENT)) {
+            throw new Error("Invalid recipient address.");
+        }
 
-        const context = composeContext({
-            state,
-            template: swapTemplate,
-        });
+        console.log(AMOUNT_IN);
 
-        const transferDetails = await generateObjectDeprecated({
-            runtime,
-            context,
-            modelClass: ModelClass.SMALL,
-        });
+        console.log("Approving tokens for swap...");
+        await approveToken(wallet, TOKEN_IN, AERODROME_ROUTER, AMOUNT_IN);
 
-        const routerAddress = ROUTER_ADDRESS;
-        const routerAbi = [
-            "function swapExactTokensForTokens(uint amountIn, uint amountOutMin, address[] calldata path, address to, uint deadline) external",
+        const amountIn = ethers.parseUnits(AMOUNT_IN, 18);
+        const amountOutMin =
+            (amountIn * BigInt(AMOUNT_OUT_MIN_PERCENTAGE)) / BigInt(100);
+
+        console.log("Validating liquidity...");
+        const factoryContract = new ethers.Contract(
+            AERODROME_FACTORY,
+            AERODROM_FACTORY_ABI,
+            wallet
+        );
+        const poolAddress = await factoryContract[
+            "getPool(address,address,bool)"
+        ](TOKEN_IN, TOKEN_OUT, false); // Assuming non-stable swap
+
+        if (poolAddress === ethers.ZeroAddress) {
+            throw new Error(
+                "No liquidity pool found for the given token pair."
+            );
+        }
+
+        console.log("Setting up swap routes...");
+        const routes = [
+            {
+                from: TOKEN_IN,
+                to: TOKEN_OUT,
+                stable: false, // Assuming non-stable swap
+                factory: AERODROME_FACTORY, // Assuming factory is the router
+            },
         ];
 
-        const routerContract = new ethers.Contract(
-            routerAddress,
-            routerAbi,
-            wallet
+        // Validation: Check output estimate
+        console.log("Estimating output amount...");
+        const estimatedOut = await getExpectedOutput(router, amountIn, routes);
+
+        if (estimatedOut < amountOutMin) {
+            // throw new Error(
+            //     `Insufficient output amount. Estimated: ${estimatedOut}, Minimum required: ${amountOutMin}`
+            // );
+        }
+
+        console.log("Estimated out: " + estimatedOut);
+
+        const payload = {
+            amountIn: amountIn.toString(),
+            amountOutMin: estimatedOut.toString(),
+            routes: routes,
+            recipient: RECIPIENT,
+            deadline: DEADLINE,
+            gasLimit: 500000,
+        };
+
+        console.log("Executing swap transaction with payload:", payload);
+
+        const tx = await router.swapExactTokensForTokens(
+            amountIn,
+            estimatedOut,
+            routes,
+            RECIPIENT,
+            DEADLINE,
+            { gasLimit: 500000 }
         );
 
-        const tokenContract = new ethers.Contract(
-            transferDetails.tokenIn,
-            [
-                "function approve(address spender, uint256 amount) external returns (bool)",
-            ],
-            wallet
-        );
-        const approveTx = await tokenContract.approve(
-            routerAddress,
-            ethers.parseUnits(transferDetails.amountIn, 18)
-        );
-        await approveTx.wait();
-        console.log("Approval successful");
+        console.log("Transaction hash:", tx.hash);
+        const receipt = await tx.wait();
+        console.log("Transaction mined:", receipt);
+
+        return receipt;
+    } catch (error) {
+        console.error("Error during swap:", error);
+        throw error;
+    }
+}
+
+export const swapAction = {
+    name: "SWAP_ON_AERODROME",
+    description: "Swap tokens on Aerodrome (Base chain)",
+    handler: async (
+        runtime: IAgentRuntime,
+        _message: Memory,
+        state: State,
+        _options: any,
+        callback?: any
+    ) => {
+        elizaLogger.log("Aerodrome swap handler called");
 
         try {
-            const amountIn = ethers.parseUnits(transferDetails.amountIn, 18);
-            const amountOutMinimum = ethers.parseUnits(
-                transferDetails.amountOutMinimum,
-                18
-            );
-            const path = [transferDetails.tokenIn, transferDetails.tokenOut];
-            const recipient = transferDetails.recipient;
-            const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
+            console.log("Retrieving EVM private key...");
+            const privateKey = runtime.getSetting("EVM_PRIVATE_KEY");
+            if (!privateKey) throw new Error("EVM_PRIVATE_KEY required");
 
-            elizaLogger.log("Swap parameters:", {
-                amountIn,
-                amountOutMinimum,
-                path,
-                recipient,
-                deadline,
+            console.log("Setting up provider and wallet...");
+            const provider = new ethers.JsonRpcProvider(
+                runtime.getSetting("EVM_PROVIDER_URL")
+            );
+            const wallet = new ethers.Wallet(privateKey, provider);
+
+            console.log("Composing swap context...");
+            const swapContext = composeContext({
+                state,
+                template: swapTemplate,
             });
 
-            let tx;
-            try {
-                tx = await routerContract.swapExactTokensForTokens(
-                    amountIn,
-                    amountOutMinimum,
-                    path,
-                    recipient,
-                    deadline
-                );
+            console.log("Generating swap payload...");
+            const content = await generateObjectDeprecated({
+                runtime,
+                context: swapContext,
+                modelClass: ModelClass.LARGE,
+            });
 
-                elizaLogger.log("Swap transaction:", { tx });
-            } catch (error) {
-                elizaLogger.log("Swap error:", { error });
-                throw error;
-            }
+            console.log("Swap payload: ", content);
 
-            if (tx) {
-                await tx.wait();
-                console.log(`Swap successful: ${tx.hash}`);
-                if (callback) {
-                    callback({
-                        text: `Successfully swapped ${transferDetails.amountIn} tokens for ${transferDetails.tokenOut}`,
-                        content: { success: true, hash: tx.hash },
-                    });
-                }
-                return true;
-            }
-        } catch (error) {
-            console.error("Swap failed:", error);
+            console.log("Performing swap...");
+            const receipt = await performSwap(wallet);
+
+            console.log("Handling callback...");
             if (callback) {
                 callback({
-                    text: `Error swapping tokens: ${error.message}`,
-                    content: { error: error.message },
+                    text: `Successfully swapped ${content.amountIn} tokens for ${content.tokenOut} on Aerodrome\nTransaction Hash: ${receipt.transactionHash}`,
+                    content: {
+                        success: true,
+                        hash: receipt.transactionHash,
+                    },
                 });
+            }
+            console.log("Swap action completed successfully.");
+            return true;
+        } catch (error) {
+            elizaLogger.error("Error in Aerodrome swap handler:", error);
+            if (callback) {
+                callback({ text: `Error: ${error.message}` });
             }
             return false;
         }
     },
+    template: swapTemplate,
     validate: async (runtime: IAgentRuntime) => {
+        console.log("Validating EVM private key...");
         const privateKey = runtime.getSetting("EVM_PRIVATE_KEY");
-        return typeof privateKey === "string" && privateKey.startsWith("0x");
+        const isValid =
+            typeof privateKey === "string" && privateKey.startsWith("0x");
+        console.log(`Validation result: ${isValid}`);
+        return isValid;
     },
     examples: [
         [
             {
-                user: "{{user1}}",
+                user: "user",
                 content: {
-                    text: "Swap 0.000004 ETH for USDC",
-                    tokenIn: "ETH",
-                    tokenOut: "USDC",
-                    amount: "0.000004",
+                    text: "Swap tokens on Aerodrome",
+                    action: "SWAP_ON_AERODROME",
                 },
-            },
-            {
-                user: "{{user2}}",
-                content: { text: "Swapping initiated", action: "swapAction" },
             },
         ],
     ],
+    similes: ["SWAP_ON_AERODROME", "AERODROME_SWAP", "SWAP_TOKENS_AERODROME"],
 };
+
+async function getExpectedOutput(router, amountIn, routes) {
+    try {
+        console.log("Estimating output amount...");
+        const amountsOut = await router.getAmountsOut(amountIn, routes);
+        const expectedOutput = amountsOut[amountsOut.length - 1]; // Last element is the final output amount
+        console.log("Expected output:", expectedOutput.toString());
+        return expectedOutput;
+    } catch (error) {
+        console.error("Error estimating output amount:", error);
+        throw error;
+    }
+}

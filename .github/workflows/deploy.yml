@@ -31,9 +31,9 @@ jobs:
             EVM_PROVIDER_URL: ${{ secrets.EVM_PROVIDER_URL }}
             ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
             TWITTER_POLL_INTERVAL: 240
-            POST_INTERVAL_MIN: 540 # Default: 90
-            POST_INTERVAL_MAX: 600 # Default: 180
-            POST_IMMEDIATELY: false
+            POST_INTERVAL_MIN: 480 # Default: 90
+            POST_INTERVAL_MAX: 540 # Default: 180
+            POST_IMMEDIATELY: true
 
         steps:
             - name: Checkout Code
@@ -91,6 +91,10 @@ jobs:
                     -e EVM_PROVIDER_URL=$EVM_PROVIDER_URL \
                     -e TWITTER_POLL_INTERVAL=$TWITTER_POLL_INTERVAL \
                     -e ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY \
+                    -e POST_INTERVAL_MIN=$POST_INTERVAL_MIN \
+                    -e POST_INTERVAL_MAX=$POST_INTERVAL_MAX \
+                    -e POST_IMMEDIATELY=$POST_IMMEDIATELY \
+                    -e SHOW_ENV_VARS=true
                     $ECR_REPOSITORY:latest && echo "Container started successfully" || echo "Failed to start container"
 
                   sleep 30
