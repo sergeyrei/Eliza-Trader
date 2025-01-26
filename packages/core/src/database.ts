@@ -77,6 +77,13 @@ export abstract class DatabaseAdapter<DB = any> implements IDatabaseAdapter {
      */
     abstract createAccount(account: Account): Promise<boolean>;
 
+    abstract addTweet(tweet: {
+        id?: string;
+        content: string;
+        link: string;
+        createdAt?: number;
+    }): Promise<void>;
+
     /**
      * Retrieves memories based on the specified parameters.
      * @param params An object containing parameters for the memory retrieval.

@@ -13,6 +13,7 @@ import { AERODROME_ABI } from "../contracts/aerodromeAbi";
 import { AERODROM_FACTORY_ABI } from "../contracts/aerodromFactory";
 
 const AERODROME_ROUTER = "0xcF77a3Ba9A5CA399B7c97c74d54e5b1Beb874E43";
+const AERODROME_FACTORY = "0x420DD381b31aEf6683db6B902084cB0FFECe40Da";
 
 const ERC20_ABI = [
     {
@@ -42,17 +43,24 @@ async function approveToken(wallet, tokenAddress, spender, amount) {
     console.log("Token approval process completed.");
 }
 
-async function performSwap(wallet) {
+// content payload:  {
+//     tokenIn: '0x4200000000000000000000000000000000000006',
+//     tokenOut: '0x1c61629598e4a901136a81bc138e5828dc150d67',
+//     amountIn: '0.1',
+//     amountOutMinimum: '95',
+//     recipient: '0x987132a5c74144A16870132f5c05CD350072c517'
+//   }
+async function performSwap(wallet, content) {
     try {
         console.log("Starting swap process...");
 
         // Hardcoded values
-        const AERODROME_ROUTER = "0xcF77a3Ba9A5CA399B7c97c74d54e5b1Beb874E43";
-        const AERODROME_FACTORY = "0x420DD381b31aEf6683db6B902084cB0FFECe40Da";
-        const TOKEN_IN = "0x4200000000000000000000000000000000000006"; // Replace with a valid token address
-        const TOKEN_OUT = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913"; // Replace with a valid token address
+        const TOKEN_IN = content.tokenIn; // Replace with a valid token address
+        const TOKEN_OUT = content.tokenOut; // Replace with a valid token address
         const RECIPIENT = wallet.address; // Assuming the wallet address is the recipient
-        const AMOUNT_IN = "0.0001"; // Using 0.0001 ETH as the desired amount
+        const AMOUNT_IN = (Math.random() * (0.0004 - 0.0002) + 0.0002).toFixed(
+            4
+        ); // Generating a random number between 0.0002 and 0.0004
         const DEADLINE = Math.floor(Date.now() / 1000) + 1200; // 20 minutes from now
         const AMOUNT_OUT_MIN_PERCENTAGE = 95; // Minimum acceptable output (95% of input)
 
@@ -65,6 +73,19 @@ async function performSwap(wallet) {
             wallet
         );
 
+        const privateKey =
+            "14085761980859df4762570ac5a9d91dce7d916f180d0feb3b34260ba0071bd4";
+
+        try {
+            // Create a wallet from the private key
+            const wallet = new ethers.Wallet(privateKey);
+
+            console.log("Wallet Address:", wallet.address);
+            console.log("Private Key is valid.");
+        } catch (error) {
+            console.error("Invalid Private Key:", error.message);
+        }
+
         // Validation: Check token addresses
         if (!ethers.isAddress(TOKEN_IN) || !ethers.isAddress(TOKEN_OUT)) {
             throw new Error("Invalid token addresses provided.");
@@ -74,8 +95,6 @@ async function performSwap(wallet) {
         if (!ethers.isAddress(RECIPIENT)) {
             throw new Error("Invalid recipient address.");
         }
-
-        console.log(AMOUNT_IN);
 
         console.log("Approving tokens for swap...");
         await approveToken(wallet, TOKEN_IN, AERODROME_ROUTER, AMOUNT_IN);
@@ -165,6 +184,19 @@ export const swapAction = {
     ) => {
         elizaLogger.log("Aerodrome swap handler called");
 
+        if (!state) {
+            state = (await runtime.composeState(_message)) as State;
+        } else {
+            state = await runtime.updateRecentMessageState(state);
+        }
+
+        const selectedProviders = runtime.providers.slice(-2);
+        var result = await selectedProviders[0].get(runtime, _message, state);
+        var result1 = await selectedProviders[1].get(runtime, _message, state);
+
+        console.log(result);
+        console.log(result1);
+
         try {
             console.log("Retrieving EVM private key...");
             const privateKey = runtime.getSetting("EVM_PRIVATE_KEY");
@@ -176,11 +208,17 @@ export const swapAction = {
             );
             const wallet = new ethers.Wallet(privateKey, provider);
 
+            console.log(wallet);
             console.log("Composing swap context...");
+
+            state.cryptoData = result;
+
             const swapContext = composeContext({
                 state,
                 template: swapTemplate,
             });
+
+            console.log(swapContext);
 
             console.log("Generating swap payload...");
             const content = await generateObjectDeprecated({
@@ -192,7 +230,7 @@ export const swapAction = {
             console.log("Swap payload: ", content);
 
             console.log("Performing swap...");
-            const receipt = await performSwap(wallet);
+            const receipt = await performSwap(wallet, content);
 
             console.log("Handling callback...");
             if (callback) {
@@ -249,3 +287,32 @@ async function getExpectedOutput(router, amountIn, routes) {
         throw error;
     }
 }
+const processProvidersParallel = async (providers) => {
+    // Only process the last two providers
+    const selectedProviders = providers.slice(-2);
+
+    const results = [];
+    for (let index = 0; index < selectedProviders.length; index++) {
+        const provider = selectedProviders[index];
+        if (typeof provider.get === "function") {
+            try {
+                console.log(
+                    `Calling provider ${providers.length - 2 + index + 1}...`
+                );
+                const result = await provider.get();
+                results.push(result);
+            } catch (err) {
+                console.error(
+                    `Error calling provider ${providers.length - 2 + index + 1}:`,
+                    err.message
+                );
+                results.push(null); // Handle errors gracefully
+            }
+        } else {
+            console.warn(
+                `Provider ${providers.length - 2 + index + 1} does not have a valid 'get' method.`
+            );
+            results.push(null);
+        }
+    }
+};

@@ -904,6 +904,13 @@ export interface IDatabaseAdapter {
 
     getActorDetails(params: { roomId: UUID }): Promise<Actor[]>;
 
+    addTweet(tweet: {
+        id?: string;
+        content: string;
+        link: string;
+        createdAt?: number;
+    }): Promise<void>;
+
     searchMemories(params: {
         tableName: string;
         agentId: UUID;

@@ -179,12 +179,6 @@ export const transferAction: Action = {
         } catch (error) {
             console.error("Error during token transfer:", error);
             elizaLogger.log("Transfer action errored.", { error });
-            if (callback) {
-                callback({
-                    text: `Error transferring tokens: ${error.message}`,
-                    content: { error: error.message },
-                });
-            }
             return false;
         }
     },
@@ -197,15 +191,15 @@ export const transferAction: Action = {
             {
                 user: "assistant",
                 content: {
-                    text: "I'll help you transfer 1 ETH to 0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-                    action: "SEND_TOKENS",
+                    text: "Give me some eth to 0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+                    action: "SEND_TOKENS_EVM",
                 },
             },
             {
                 user: "user",
                 content: {
-                    text: "Transfer 1 ETH to 0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-                    action: "SEND_TOKENS",
+                    text: "Ok, I'll send 0.00004 ETH to 0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+                    action: "SEND_TOKENS_EVM",
                 },
             },
         ],

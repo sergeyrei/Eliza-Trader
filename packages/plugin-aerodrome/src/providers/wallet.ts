@@ -9,6 +9,16 @@ import {
 
 import { ethers } from "ethers";
 
+const tokenAddresses = [
+    "0x4200000000000000000000000000000000000006", // ETH
+    "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", // USDC
+    "0x940181a94A35A4569E4529A3CDfB74e38FD98631", // AERO
+    "0xdac17f958d2ee523a2206206994597c13d831ec7", // USDT
+    "0x91ad1b44913cd1b8241a4ff1e2eaa198da6bf4c9", // DAI
+    "0x0b3e328455c4059eeb9e3f84b5543f74e24e7e1b", // Virtual
+    "0x9e1028f5f1d5ede59748ffcee5532509976840e0", // comp
+];
+
 export const aerodromeWalletProvider: Provider = {
     async get(
         runtime: IAgentRuntime,
