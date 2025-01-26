@@ -284,16 +284,7 @@ export class TwitterPostClient {
         // Cache the tweet
         await client.cacheTweet(tweet);
 
-        // Log the posted tweet
-        elizaLogger.log(`Tweet posted:\n ${tweet.permanentUrl}`);
-
-        if (runtime.databaseAdapter.addTweet) {
-            elizaLogger.log(`Adding to DB:\n ${tweet.permanentUrl}`);
-            await runtime.databaseAdapter.addTweet({
-                content: newTweetContent.trim(),
-                link: tweet.permanentUrl,
-            });
-        }
+        elizaLogger.log(`Adding to DB:\n ${tweet.permanentUrl}`);
 
         // Ensure the room and participant exist
         await runtime.ensureRoomExists(roomId);

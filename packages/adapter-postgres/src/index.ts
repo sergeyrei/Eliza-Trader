@@ -511,33 +511,6 @@ export class PostgresDatabaseAdapter
         }, "createMemory");
     }
 
-    async addTweet(tweet) {
-        return this.withDatabase(async () => {
-            elizaLogger.debug("PostgresAdapter createTweet:", {
-                tweetId: tweet.id,
-                contentLength: tweet.content?.length,
-                link: tweet.link,
-            });
-
-            await this.pool.query(
-                `INSERT INTO tweets (
-                id, content, link, "createdAt"
-            ) VALUES (
-                $1, $2, $3, $4
-            )`,
-                [
-                    tweet.id ?? v4(), // Generate UUID if not provided
-                    tweet.content, // Tweet content
-                    tweet.link, // Tweet link
-                    tweet.createdAt
-                        ? new Date(tweet.createdAt).toISOString()
-                        : new Date().toISOString(),
-                    // Use the provided timestamp or fallback to the current time
-                ]
-            );
-        }, "createTweet");
-    }
-
     async searchMemories(params: {
         tableName: string;
         agentId: UUID;

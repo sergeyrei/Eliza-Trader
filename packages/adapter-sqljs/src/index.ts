@@ -43,6 +43,14 @@ export class SqlJsDatabaseAdapter
         return room ? (room.id as UUID) : null;
     }
 
+    async addTweet(tweet: any): Promise<void> {
+        // Adjust the parameter type as needed
+        const sql = "INSERT INTO tweets (content) VALUES (?)"; // Example SQL
+        const stmt = this.db.prepare(sql);
+        stmt.run([tweet.content]); // Assuming tweet has a content property
+        stmt.free();
+    }
+
     async getParticipantsForAccount(userId: UUID): Promise<Participant[]> {
         const sql = `
       SELECT p.id, p.userId, p.roomId, p.last_message_read
