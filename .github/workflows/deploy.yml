@@ -35,6 +35,7 @@ jobs:
             POST_INTERVAL_MIN: 480 # Default: 90
             POST_INTERVAL_MAX: 540 # Default: 180
             POST_IMMEDIATELY: true
+            MAX_TWEET_LENGTH: 1400
 
         steps:
             - name: Checkout Code
@@ -96,6 +97,7 @@ jobs:
                     -e POST_INTERVAL_MAX=$POST_INTERVAL_MAX \
                     -e POST_IMMEDIATELY=$POST_IMMEDIATELY \
                     -e POSTGRES_URL=$POSTGRES_URL \
+                    -e MAX_TWEET_LENGTH=$MAX_TWEET_LENGTH \
                     $ECR_REPOSITORY:latest && echo "Container started successfully" || echo "Failed to start container"
 
                   sleep 30
