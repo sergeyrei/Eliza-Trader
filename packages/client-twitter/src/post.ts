@@ -624,7 +624,7 @@ export class TwitterPostClient {
                 "twitter"
             );
 
-            const homeTimeline = await this.client.fetchTimelineForActions(15);
+            const homeTimeline = await this.client.fetchTimelineForActions(5);
             const results = [];
 
             for (const tweet of homeTimeline) {
