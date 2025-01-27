@@ -168,7 +168,7 @@ async function performSwap(wallet, content) {
         return receipt;
     } catch (error) {
         console.error("Error during swap:", error);
-        throw error;
+        return "Error during swap:" + error;
     }
 }
 

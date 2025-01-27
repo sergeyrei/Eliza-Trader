@@ -32,7 +32,7 @@ Common token addresses on Base:
 - ZEREBRO: 0xd2e92077ad4d7d50d7d60be13fffe3fb52cc0b9f
 
 
-tokenIn is 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
+tokenIn is 0x4200000000000000000000000000000000000006
 tokenOut is determined by the processing to identify the best value
 Recipient is 0x987132a5c74144A16870132f5c05CD350072c517
 
