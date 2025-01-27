@@ -36,8 +36,6 @@ jobs:
             POST_INTERVAL_MAX: 360 # Default: 180
             POST_IMMEDIATELY: true
             MAX_TWEET_LENGTH: 1400
-            ACTION_INTERVAL: 30
-            ENABLE_ACTION_PROCESSING: true
 
         steps:
             - name: Checkout Code
