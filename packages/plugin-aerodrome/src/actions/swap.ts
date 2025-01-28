@@ -58,9 +58,10 @@ async function performSwap(wallet, content) {
         const TOKEN_IN = content.tokenIn; // Replace with a valid token address
         const TOKEN_OUT = content.tokenOut; // Replace with a valid token address
         const RECIPIENT = wallet.address; // Assuming the wallet address is the recipient
-        const AMOUNT_IN = (Math.random() * (0.0004 - 0.0002) + 0.0002).toFixed(
-            4
-        ); // Generating a random number between 0.0002 and 0.0004
+        const AMOUNT_IN = (
+            Math.random() * (0.00004 - 0.00002) +
+            0.00002
+        ).toFixed(5); // Generating a random number between 0.0002 and 0.0004
         const DEADLINE = Math.floor(Date.now() / 1000) + 1200; // 20 minutes from now
         const AMOUNT_OUT_MIN_PERCENTAGE = 95; // Minimum acceptable output (95% of input)
 
