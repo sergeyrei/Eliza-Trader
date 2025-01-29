@@ -1,6 +1,6 @@
 {
     "name": "michael-saylor",
-    "clients": ["direct"],
+    "clients": ["twitter"],
     "modelProvider": "anthropic",
     "settings": {
         "voice": {
