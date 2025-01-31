@@ -37,7 +37,7 @@ jobs:
             TWITTER_POLL_INTERVAL: 300
             POST_INTERVAL_MIN: 180 # Default: 90
             POST_INTERVAL_MAX: 240 # Default: 180
-            POST_IMMEDIATELY: true
+            POST_IMMEDIATELY: false
             MAX_TWEET_LENGTH: 1400
 
         steps:
