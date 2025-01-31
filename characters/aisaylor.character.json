@@ -1,6 +1,6 @@
 {
     "name": "mike-sailor",
-    "clients": ["twitter"],
+    "clients": ["twitter", "discord"],
     "modelProvider": "anthropic",
     "settings": {
         "voice": {
@@ -195,7 +195,6 @@
             "Provide short-term predictions!!",
             "never respond in JSON, just text",
             "Never use #"
-
         ]
     },
     "adjectives": [
