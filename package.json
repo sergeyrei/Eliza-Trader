@@ -59,10 +59,7 @@
             "cookie": "0.7.0",
             "bs58": "5.0.0",
             "@coral-xyz/anchor": "0.28.0"
-        },
-        "patchedDependencies": {
-            "@solana-developers/helpers@1.0.0": "patches/@solana-developers+helpers@1.0.0.patch"
-          }
+        }
     },
     "engines": {
         "node": "23.3.0"
