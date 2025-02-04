@@ -1,16 +1,16 @@
-import { ByteArray, formatEther, parseEther, type Hex } from "viem";
+import { type ByteArray, formatEther, parseEther, type Hex } from "viem";
 import {
-    Action,
+    type Action,
     composeContext,
     generateObjectDeprecated,
-    HandlerCallback,
+    type HandlerCallback,
     ModelClass,
     type IAgentRuntime,
     type Memory,
     type State,
 } from "@elizaos/core";
-import { elizaLogger } from "@elizaos/core";
-import { initWalletProvider, WalletProvider } from "../providers/wallet";
+
+import { initWalletProvider, type WalletProvider } from "../providers/wallet";
 import type { Transaction, TransferParams } from "../types";
 import { transferTemplate } from "../templates";
 
@@ -27,24 +27,6 @@ export class TransferAction {
             params.data = "0x";
         }
 
-        if (!params.toAddress) {
-            throw new Error(
-                `Transfer failed params.toAddress is invalid: ${params.toAddress}`
-            );
-        }
-
-        if (!params.amount) {
-            throw new Error(
-                `Transfer failed params.amount is invalid: ${params.amount}`
-            );
-        }
-
-        if (!params.fromChain) {
-            throw new Error(
-                `Transfer failed params.fromChain is invalid: ${params.fromChain}`
-            );
-        }
-
         this.walletProvider.switchChain(params.fromChain);
 
         const walletClient = this.walletProvider.getWalletClient(
@@ -58,13 +40,13 @@ export class TransferAction {
                 value: parseEther(params.amount),
                 data: params.data as Hex,
                 kzg: {
-                    blobToKzgCommitment: function (_: ByteArray): ByteArray {
+                    blobToKzgCommitment: (_: ByteArray): ByteArray => {
                         throw new Error("Function not implemented.");
                     },
-                    computeBlobKzgProof: function (
+                    computeBlobKzgProof: (
                         _blob: ByteArray,
                         _commitment: ByteArray
-                    ): ByteArray {
+                    ): ByteArray => {
                         throw new Error("Function not implemented.");
                     },
                 },
@@ -102,10 +84,6 @@ const buildTransferDetails = async (
         context,
         modelClass: ModelClass.SMALL,
     })) as TransferParams;
-
-    transferDetails.fromChain = "base";
-
-    elizaLogger.log("transferDetails:", { transferDetails });
 
     const existingChain = wp.chains[transferDetails.fromChain];
 
@@ -148,21 +126,8 @@ export const transferAction: Action = {
             walletProvider
         );
 
-        elizaLogger.log("Transfer action handler called.");
-        elizaLogger.log(
-            "Transfer details:",
-            JSON.stringify(paramOptions, null, 2)
-        );
-
         try {
             const transferResp = await action.transfer(paramOptions);
-            elizaLogger.log(
-                `Successfully transferred ${paramOptions.amount} tokens to ${paramOptions.toAddress}`
-            );
-            elizaLogger.log(`Transaction Hash: ${transferResp.hash}`);
-            elizaLogger.log(`Token amount: ${formatEther(transferResp.value)}`);
-            elizaLogger.log(`Recipient Address: ${transferResp.to}`);
-            elizaLogger.log(`Chain ID: ${paramOptions.fromChain}`);
             if (callback) {
                 callback({
                     text: `Successfully transferred ${paramOptions.amount} tokens to ${paramOptions.toAddress}\nTransaction Hash: ${transferResp.hash}`,
@@ -178,7 +143,12 @@ export const transferAction: Action = {
             return true;
         } catch (error) {
             console.error("Error during token transfer:", error);
-            elizaLogger.log("Transfer action errored.", { error });
+            if (callback) {
+                callback({
+                    text: `Error transferring tokens: ${error.message}`,
+                    content: { error: error.message },
+                });
+            }
             return false;
         }
     },
@@ -191,18 +161,18 @@ export const transferAction: Action = {
             {
                 user: "assistant",
                 content: {
-                    text: "Give me some eth to 0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-                    action: "SEND_TOKENS_EVM",
+                    text: "I'll help you transfer 1 ETH to 0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+                    action: "SEND_TOKENS",
                 },
             },
             {
                 user: "user",
                 content: {
-                    text: "Ok, I'll send 0.00004 ETH to 0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-                    action: "SEND_TOKENS_EVM",
+                    text: "Transfer 1 ETH to 0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+                    action: "SEND_TOKENS",
                 },
             },
         ],
     ],
-    similes: ["SEND_TOKENS_EVM", "TOKEN_TRANSFER", "MOVE_TOKENS"],
+    similes: ["SEND_TOKENS", "TOKEN_TRANSFER", "MOVE_TOKENS"],
 };
