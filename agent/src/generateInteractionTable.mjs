@@ -122,10 +122,10 @@ async function evaluateContent(content, type) {
         - Relevance (0-40)
         Provide reasoning in strict format:
         - Score: [NUMBER]
-        - Humor: [Brief reasoning]
-        - Engagement: [Brief reasoning]
-        - Relevance: [Brief reasoning, be cricical!]
-        - Final verdict: [Short summary, be cricical!]
+        - Humor: [Brief reasoning(maximum 5 words)]
+        - Engagement: [Brief reasoning(maximum 5 words)]
+        - Relevance: [Brief reasoning, be cricical!(maximum 5 words)]
+        - Final verdict: [Short summary, be cricical!(maximum 5 words)]
         
         Content: ${content}`;
 
@@ -135,6 +135,7 @@ async function evaluateContent(content, type) {
             max_tokens: 2000,
         });
 
+        totalTokensUsed += completion.usage.total_tokens;
         return completion.choices[0].message.content.trim();
     } catch (error) {
         console.error("Error evaluating content:", error);
@@ -147,13 +148,12 @@ async function generateOverallReport(inputData) {
     try {
         const prompt = `Analyze the following interactions and determine which parts of the input file(character) (aisaylor.character.json) should be updated to improve responses.
         Character file: ${inputData}
-
+        Total tokens used: ${totalTokensUsed}
         Provide structured feedback in the following format:
         
-        - Sections to Update: [Exact JSON paths and strings needing updates]
+        - Sections to Update: [Exact lines from character file]
         - Suggested Improvements: [Exact lines/string which you dont like]
-        - Expected Outcome: [How these changes will improve responses]
-        - Total Tokens Used: [Total count and estimated cost]
+        - Total Tokens Used: [Total count and estimated cost] 
         
         Results:
         ${JSON.stringify(results, null, 2)}`;
@@ -164,6 +164,7 @@ async function generateOverallReport(inputData) {
             max_tokens: 2000,
         });
 
+        totalTokensUsed += completion.usage.total_tokens;
         const report = completion.choices[0].message.content.trim();
         await appendOverallReport(report);
         return report;
