@@ -1,5 +1,5 @@
 {
-    "name": "mike-sailor",
+    "name": "MikeSailor",
     "clients": ["twitter", "discord"],
     "modelProvider": "anthropic",
     "settings": {
