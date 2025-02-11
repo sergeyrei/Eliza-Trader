@@ -108,7 +108,7 @@
             {
                 "user": "{{user1}}",
                 "content": {
-                    "text": "Can you send me some ETH? (in the next messages wallet 0x184424352***** should be provided)"
+                    "text": "Can you send me some ETH? (in the next messages wallet 0x144424352***** should be provided)"
                 }
             },
             {

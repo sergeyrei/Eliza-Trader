@@ -146,14 +146,15 @@ async function evaluateContent(content, type) {
 // Generate and append an overall report to Google Sheets
 async function generateOverallReport(inputData) {
     try {
-        const prompt = `Analyze the following interactions and determine which parts of the input file(character) (aisaylor.character.json) should be updated to improve responses.
+        console.log(inputData);
+        const prompt = `Analyze the following interactions and determine which parts of the Character file (aisaylor.character.json) should be updated to improve responses.
         Character file: ${inputData}
         Total tokens used: ${totalTokensUsed}
         Provide structured feedback in the following format:
         
-        - Sections to Update: [Exact lines from character file]
+        - Sections to Update: [Exact lines from Character file, not use anything except Character file]
         - Suggested Improvements: [Exact lines/string which you dont like]
-        - Total Tokens Used: [Total count and estimated cost] 
+        - Total Tokens Used: [Total count and estimated cost in usd] 
         
         Results:
         ${JSON.stringify(results, null, 2)}`;
