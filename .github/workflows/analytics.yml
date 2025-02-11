@@ -1,48 +1,51 @@
 name: Generate Interaction Table with OpenAI and Deploy to Google Sheets
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'characters/*.json'
+    push:
+        branches:
+            - main
+        paths:
+            - "characters/*.json"
 
-
-  workflow_dispatch:  # Allow manual triggering
-
+    workflow_dispatch: # Allow manual triggering
 
 jobs:
-  run-openai-test:
-    runs-on: ubuntu-latest
+    run-openai-test:
+        runs-on: ubuntu-latest
 
-    steps:
-      # ✅ Checkout the repo
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+        steps:
+            # ✅ Checkout the repo
+            - name: Checkout Repository
+              uses: actions/checkout@v4
 
-      # ✅ Install pnpm
-      - name: Install pnpm
-        run: npm install -g pnpm
+            # ✅ Install pnpm
+            - name: Install pnpm
+              run: npm install -g pnpm
 
-      # ✅ Set up Node.js with pnpm caching
-      - name: Set Up Node.js with pnpm caching
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
+            # ✅ Set up Node.js with pnpm caching
+            - name: Set Up Node.js with pnpm caching
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+                  cache: "pnpm"
 
-      # ✅ Install dependencies using pnpm
-      - name: Install Dependencies Using pnpm
-        run: pnpm install --frozen-lockfile
+            # ✅ Install dependencies using pnpm
+            - name: Install Dependencies Using pnpm
+              run: pnpm install --frozen-lockfile
 
-      # ✅ Run the script and generate the Google Sheet table using Service Account
-      - name: Run OpenAI Interaction Table Script
-        run: pnpm run generate-interaction
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          GOOGLE_SERVICE_ACCOUNT_CREDENTIALS: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
+            # ✅ Display Google Service Account Credentials
+            - name: Display Google Service Account Credentials
+              run: |
+                  echo "✅ Google Service Account Credentials: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}"
 
-      # ✅ Display Google Sheets result URL
-      - name: Display Google Sheet URL
-        run: |
-          echo "✅ Google Sheets URL: https://docs.google.com/spreadsheets/d/15F5xx-Gb7Pl50UmXL_WNqAzIs8uP0vDkRv6uP9fytSk"
+            # ✅ Run the script and generate the Google Sheet table using Service Account
+            - name: Run OpenAI Interaction Table Script
+              run: pnpm run generate-interaction
+              env:
+                  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+                  GOOGLE_SERVICE_ACCOUNT_CREDENTIALS: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
+
+            # ✅ Display Google Sheets result URL
+            - name: Display Google Sheet URL
+              run: |
+                  echo "✅ Google Sheets URL: https://docs.google.com/spreadsheets/d/15F5xx-Gb7Pl50UmXL_WNqAzIs8uP0vDkRv6uP9fytSk"
