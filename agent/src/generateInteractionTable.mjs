@@ -78,17 +78,14 @@ async function getInputData() {
 // Generate response from OpenAI
 async function getOpenAIResponse(inputData, type, userMessage = null) {
     try {
-        // System message ensuring bot follows instructions
-        const systemPrompt = `
-        You are a character AI assistant. Follow the persona, style, and knowledge provided in the input data. 
+        const systemPrompt = `You are a character AI assistant. Follow the bio, lore, style, and knowledge provided in the input data. 
         For tweets, generate an engaging tweet that fits the character.
         For chat replies, consider the example user messages to create an accurate response.
-        Always maintain the defined tone and behavior of the character.
-        `;
+        Always maintain the defined tone and behavior of the character.`;
 
         let userPrompt = "";
         if (type === "post") {
-            userPrompt = `Generate a tweet based on this file (follow all instructions): ${JSON.stringify(
+            userPrompt = `Generate a tweet based on this file (follow all instructions), especially style: ${JSON.stringify(
                 inputData
             )}`;
         } else if (type === "chat") {
@@ -105,7 +102,7 @@ async function getOpenAIResponse(inputData, type, userMessage = null) {
                 { role: "system", content: systemPrompt },
                 { role: "user", content: userPrompt },
             ],
-            max_tokens: 1000,
+            max_tokens: 2000,
         });
 
         totalTokensUsed += completion.usage.total_tokens;
@@ -119,25 +116,23 @@ async function getOpenAIResponse(inputData, type, userMessage = null) {
 // Generate evaluation score and reasoning
 async function evaluateContent(content, type) {
     try {
-        const evaluationPrompt = `
-        Evaluate this ${type} on a scale of 0-100 based on:
+        const evaluationPrompt = `Evaluate this ${type} on a scale of 0-100 based on:
         - Humor (0-30)
         - Engagement (0-30)
         - Relevance (0-40)
         Provide reasoning in strict format:
         - Score: [NUMBER]
-        - Humor: [Brief reasoning(few words)]
-        - Engagement: [Brief reasoning(few words)]
-        - Relevance: [Brief reasoning(few words)]
-        - Final verdict: [Short summary(few words)]
+        - Humor: [Brief reasoning]
+        - Engagement: [Brief reasoning]
+        - Relevance: [Brief reasoning]
+        - Final verdict: [Short summary]
         
-        Content: ${content}
-        `;
+        Content: ${content}`;
 
         const completion = await openai.chat.completions.create({
             model: "gpt-4",
             messages: [{ role: "user", content: evaluationPrompt }],
-            max_tokens: 500,
+            max_tokens: 2000,
         });
 
         return completion.choices[0].message.content.trim();
@@ -147,32 +142,49 @@ async function evaluateContent(content, type) {
     }
 }
 
-// Generate overall report including suggestions for input file improvement
+// Generate and append an overall report to Google Sheets
 async function generateOverallReport() {
     try {
-        const prompt = `
-        Based on the following results, suggest which parts of the input file (aisaylor.character.json) should be updated to improve responses:
-        
-        ${JSON.stringify(results, null, 2)}
-
+        const prompt = `Analyze the following interactions and determine which parts of the input file (aisaylor.character.json) should be updated to improve responses.
         Provide structured feedback in the following format:
-        - Sections to Update: [List specific sections that need updates]
-        - Suggested Improvements: [Detailed suggestions for changes]
+        
+        - Sections to Update: [Exact JSON paths and strings needing updates]
+        - Suggested Improvements: [Detailed recommended changes]
         - Expected Outcome: [How these changes will improve responses]
-        - Total Tokens Used: [Total token count and estimated cost]
-        `;
+        - Total Tokens Used: [Total count and estimated cost]
+        
+        Results:
+        ${JSON.stringify(results, null, 2)}`;
 
         const completion = await openai.chat.completions.create({
             model: "gpt-4",
             messages: [{ role: "user", content: prompt }],
-            max_tokens: 1000,
+            max_tokens: 2000,
         });
 
-        return completion.choices[0].message.content.trim();
+        const report = completion.choices[0].message.content.trim();
+        await appendOverallReport(report);
+        return report;
     } catch (error) {
         console.error("Error generating overall report:", error);
         return "Report generation failed";
     }
+}
+
+// Append overall report to Google Sheet
+async function appendOverallReport(report) {
+    const values = [["Overall Report"]];
+    values.push([report]);
+
+    await sheets.spreadsheets.values.append({
+        spreadsheetId: SPREADSHEET_ID,
+        range: "Main!H1",
+        valueInputOption: "RAW",
+        insertDataOption: "INSERT_ROWS",
+        requestBody: { values },
+    });
+
+    console.log("✅ Overall report added to Google Sheets.");
 }
 
 // Append data to "Main" Google Sheet
@@ -205,7 +217,7 @@ async function appendToGoogleSheet(table) {
 
     console.log("✅ Data successfully appended to 'Main' Google Sheet.");
 
-    // Generate overall report
+    // Generate and append the overall report
     const report = await generateOverallReport();
     console.log("\n📌 Overall Report:\n", report);
 }
