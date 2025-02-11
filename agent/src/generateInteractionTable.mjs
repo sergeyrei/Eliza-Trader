@@ -36,6 +36,7 @@ const sheets = google.sheets({ version: "v4", auth });
 // Define Google Spreadsheet ID
 const SPREADSHEET_ID = "15F5xx-Gb7Pl50UmXL_WNqAzIs8uP0vDkRv6uP9fytSk";
 let totalTokensUsed = 0;
+let results = [];
 
 // Helper function to remove all sheets except "Main"
 async function cleanSheets() {
@@ -85,7 +86,6 @@ async function getOpenAIResponse(inputData, type, userMessage = null) {
         Always maintain the defined tone and behavior of the character.
         `;
 
-        // Construct user prompt
         let userPrompt = "";
         if (type === "post") {
             userPrompt = `Generate a tweet based on this file (follow all instructions): ${JSON.stringify(
@@ -121,14 +121,15 @@ async function evaluateContent(content, type) {
     try {
         const evaluationPrompt = `
         Evaluate this ${type} on a scale of 0-100 based on:
-        - Humor (0-100)
-        - Engagement (0-100)
+        - Humor (0-30)
+        - Engagement (0-30)
+        - Relevance (0-40)
         Provide reasoning in strict format:
         - Score: [NUMBER]
-        - Humor: [Really Brief reasoning]
-        - Engagement: [Really Brief reasoning]
-        - Relevance: [Really Brief reasoning]
-        - Final verdict: [Really Short summary]
+        - Humor: [Brief reasoning(few words)]
+        - Engagement: [Brief reasoning(few words)]
+        - Relevance: [Brief reasoning(few words)]
+        - Final verdict: [Short summary(few words)]
         
         Content: ${content}
         `;
@@ -146,43 +147,41 @@ async function evaluateContent(content, type) {
     }
 }
 
-// Generate improvement suggestions
-async function getImprovementSuggestions(content) {
+// Generate overall report including suggestions for input file improvement
+async function generateOverallReport() {
     try {
         const prompt = `
-        Based on the following text, provide improvement suggestions to increase humor, engagement, and relevance:
+        Based on the following results, suggest which parts of the input file (aisaylor.character.json) should be updated to improve responses:
         
-        ${content}
+        ${JSON.stringify(results, null, 2)}
 
-        Provide response in the following format:
-        - Humor Improvement: [Brief Suggestion]
-        - Engagement Improvement: [Brief Suggestion]
-        - Relevance Improvement: [Brief Suggestion]
+        Provide structured feedback in the following format:
+        - Sections to Update: [List specific sections that need updates]
+        - Suggested Improvements: [Detailed suggestions for changes]
+        - Expected Outcome: [How these changes will improve responses]
+        - Total Tokens Used: [Total token count and estimated cost]
         `;
 
         const completion = await openai.chat.completions.create({
             model: "gpt-4",
             messages: [{ role: "user", content: prompt }],
-            max_tokens: 500,
+            max_tokens: 1000,
         });
 
         return completion.choices[0].message.content.trim();
     } catch (error) {
-        console.error("Error generating improvement suggestions:", error);
-        return "Improvement suggestions failed";
+        console.error("Error generating overall report:", error);
+        return "Report generation failed";
     }
 }
 
 // Append data to "Main" Google Sheet
 async function appendToGoogleSheet(table) {
-    const values = [
-        ["ID", "Type", "Input", "Output", "Score", "Evaluation", "Suggestions"],
-    ];
+    const values = [["ID", "Type", "Input", "Output", "Score", "Evaluation"]];
+    results = [...table];
 
     for (const row of table) {
         const evaluation = await evaluateContent(row.output, row.type);
-        const suggestions = await getImprovementSuggestions(row.output);
-
         const [_, scoreLine, ...reasoningLines] = evaluation.split("\n");
         const score = scoreLine.split(":")[1]?.trim() || "0";
 
@@ -193,7 +192,6 @@ async function appendToGoogleSheet(table) {
             row.output,
             score,
             reasoningLines.join("\n"),
-            suggestions,
         ]);
     }
 
@@ -206,6 +204,10 @@ async function appendToGoogleSheet(table) {
     });
 
     console.log("✅ Data successfully appended to 'Main' Google Sheet.");
+
+    // Generate overall report
+    const report = await generateOverallReport();
+    console.log("\n📌 Overall Report:\n", report);
 }
 
 // Generate and store test cases
@@ -245,12 +247,6 @@ async function generateInteractionTable() {
 
     console.table(table);
     await appendToGoogleSheet(table);
-    console.log(
-        `💰 Total tokens used: ${totalTokensUsed} (~$${(
-            (totalTokensUsed / 1000) *
-            0.03
-        ).toFixed(4)} USD)`
-    );
 }
 
 // Run the script
