@@ -124,8 +124,8 @@ async function evaluateContent(content, type) {
         - Score: [NUMBER]
         - Humor: [Brief reasoning]
         - Engagement: [Brief reasoning]
-        - Relevance: [Brief reasoning]
-        - Final verdict: [Short summary]
+        - Relevance: [Brief reasoning, be cricical!]
+        - Final verdict: [Short summary, be cricical!]
         
         Content: ${content}`;
 
@@ -143,13 +143,15 @@ async function evaluateContent(content, type) {
 }
 
 // Generate and append an overall report to Google Sheets
-async function generateOverallReport() {
+async function generateOverallReport(inputData) {
     try {
-        const prompt = `Analyze the following interactions and determine which parts of the input file (aisaylor.character.json) should be updated to improve responses.
+        const prompt = `Analyze the following interactions and determine which parts of the input file(character) (aisaylor.character.json) should be updated to improve responses.
+        Character file: ${inputData}
+
         Provide structured feedback in the following format:
         
         - Sections to Update: [Exact JSON paths and strings needing updates]
-        - Suggested Improvements: [Detailed recommended changes]
+        - Suggested Improvements: [Exact lines/string which you dont like]
         - Expected Outcome: [How these changes will improve responses]
         - Total Tokens Used: [Total count and estimated cost]
         
@@ -188,7 +190,7 @@ async function appendOverallReport(report) {
 }
 
 // Append data to "Main" Google Sheet
-async function appendToGoogleSheet(table) {
+async function appendToGoogleSheet(table, inputData) {
     const values = [["ID", "Type", "Input", "Output", "Score", "Evaluation"]];
     results = [...table];
 
@@ -218,7 +220,7 @@ async function appendToGoogleSheet(table) {
     console.log("✅ Data successfully appended to 'Main' Google Sheet.");
 
     // Generate and append the overall report
-    const report = await generateOverallReport();
+    const report = await generateOverallReport(inputData);
     console.log("\n📌 Overall Report:\n", report);
 }
 
@@ -258,7 +260,7 @@ async function generateInteractionTable() {
     }
 
     console.table(table);
-    await appendToGoogleSheet(table);
+    await appendToGoogleSheet(table, inputData);
 }
 
 // Run the script
