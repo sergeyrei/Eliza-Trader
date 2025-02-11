@@ -35,6 +35,7 @@ const sheets = google.sheets({ version: "v4", auth });
 
 // Define Google Spreadsheet ID
 const SPREADSHEET_ID = "15F5xx-Gb7Pl50UmXL_WNqAzIs8uP0vDkRv6uP9fytSk";
+let totalTokensUsed = 0;
 
 // Helper function to remove all sheets except "Main"
 async function cleanSheets() {
@@ -58,7 +59,7 @@ async function cleanSheets() {
     }
 }
 
-// Load input data from JSON file
+// Load full input data from JSON file
 async function getInputData() {
     try {
         const filePath = path.resolve(
@@ -74,29 +75,43 @@ async function getInputData() {
 }
 
 // Generate response from OpenAI
-async function getOpenAIResponse(input, type, index) {
+async function getOpenAIResponse(inputData, type, userMessage = null) {
     try {
-        const prompt =
-            type === "post"
-                ? `Generate an engaging tweet based on this input: ${JSON.stringify(
-                      input
-                  )}`
-                : `Generate a sarcastic and engaging chat reply based on this user message: ${JSON.stringify(
-                      input
-                  )}`;
+        // System message ensuring bot follows instructions
+        const systemPrompt = `
+        You are a character AI assistant. Follow the persona, style, and knowledge provided in the input data. 
+        For tweets, generate an engaging tweet that fits the character.
+        For chat replies, consider the example user messages to create an accurate response.
+        Always maintain the defined tone and behavior of the character.
+        `;
+
+        // Construct user prompt
+        let userPrompt = "";
+        if (type === "post") {
+            userPrompt = `Generate a tweet based on this file (follow all instructions): ${JSON.stringify(
+                inputData
+            )}`;
+        } else if (type === "chat") {
+            userPrompt = `Generate a chat reply based on this file and the provided user message. Follow all instructions:\n\nCharacter Data:\n${JSON.stringify(
+                inputData
+            )}\n\nUser Message: "${userMessage}"\n\nUser Message Examples:\n${JSON.stringify(
+                inputData.messageExamples.slice(0, 5)
+            )}`;
+        }
 
         const completion = await openai.chat.completions.create({
             model: "gpt-4",
-            messages: [{ role: "user", content: prompt }],
+            messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: userPrompt },
+            ],
             max_tokens: 1000,
         });
 
+        totalTokensUsed += completion.usage.total_tokens;
         return completion.choices[0].message.content.trim();
     } catch (error) {
-        console.error(
-            `Error calling OpenAI API for ${type} example ${index + 1}:`,
-            error
-        );
+        console.error(`Error generating ${type} response:`, error);
         return "Error in generating response";
     }
 }
@@ -106,15 +121,14 @@ async function evaluateContent(content, type) {
     try {
         const evaluationPrompt = `
         Evaluate this ${type} on a scale of 0-100 based on:
-        - Humor (0-30)
-        - Engagement (0-30)
-        - Relevance to trading/micro market making (0-40)
+        - Humor (0-100)
+        - Engagement (0-100)
         Provide reasoning in strict format:
         - Score: [NUMBER]
-        - Humor: [Brief reasoning]
-        - Engagement: [Brief reasoning]
-        - Relevance: [Brief reasoning]
-        - Final verdict: [Short summary]
+        - Humor: [Really Brief reasoning]
+        - Engagement: [Really Brief reasoning]
+        - Relevance: [Really Brief reasoning]
+        - Final verdict: [Really Short summary]
         
         Content: ${content}
         `;
@@ -132,15 +146,43 @@ async function evaluateContent(content, type) {
     }
 }
 
+// Generate improvement suggestions
+async function getImprovementSuggestions(content) {
+    try {
+        const prompt = `
+        Based on the following text, provide improvement suggestions to increase humor, engagement, and relevance:
+        
+        ${content}
+
+        Provide response in the following format:
+        - Humor Improvement: [Brief Suggestion]
+        - Engagement Improvement: [Brief Suggestion]
+        - Relevance Improvement: [Brief Suggestion]
+        `;
+
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4",
+            messages: [{ role: "user", content: prompt }],
+            max_tokens: 500,
+        });
+
+        return completion.choices[0].message.content.trim();
+    } catch (error) {
+        console.error("Error generating improvement suggestions:", error);
+        return "Improvement suggestions failed";
+    }
+}
+
 // Append data to "Main" Google Sheet
 async function appendToGoogleSheet(table) {
     const values = [
-        ["ID", "Type", "Input", "Output", "Score", "Evaluation"],
-        ["---", "---", "---", "---", "---", "---"],
+        ["ID", "Type", "Input", "Output", "Score", "Evaluation", "Suggestions"],
     ];
 
     for (const row of table) {
         const evaluation = await evaluateContent(row.output, row.type);
+        const suggestions = await getImprovementSuggestions(row.output);
+
         const [_, scoreLine, ...reasoningLines] = evaluation.split("\n");
         const score = scoreLine.split(":")[1]?.trim() || "0";
 
@@ -151,10 +193,10 @@ async function appendToGoogleSheet(table) {
             row.output,
             score,
             reasoningLines.join("\n"),
+            suggestions,
         ]);
     }
 
-    // Append to "Main" Sheet
     await sheets.spreadsheets.values.append({
         spreadsheetId: SPREADSHEET_ID,
         range: "Main!A1",
@@ -168,30 +210,31 @@ async function appendToGoogleSheet(table) {
 
 // Generate and store test cases
 async function generateInteractionTable() {
-    await cleanSheets(); // Remove all sheets except "Main"
-
+    await cleanSheets();
     const inputData = await getInputData();
     console.log("✅ Input data loaded successfully.");
 
     const table = [];
     let id = Date.now();
 
-    // Generate 5 X posts
     for (let i = 0; i < 5; i++) {
-        const outputData = await getOpenAIResponse(inputData.bio, "post", i);
+        const outputData = await getOpenAIResponse(inputData, "post");
         table.push({
             id: id++,
             type: "Post",
-            input: "Generate an engaging tweet based on trading humor",
+            input: "Generate a tweet",
             output: outputData,
         });
     }
 
-    // Generate 10 chat replies
     const messageExamples = inputData.messageExamples.slice(0, 10);
     for (let i = 0; i < messageExamples.length; i++) {
         const userMessage = messageExamples[i][0].content.text;
-        const outputData = await getOpenAIResponse(userMessage, "chat", i);
+        const outputData = await getOpenAIResponse(
+            inputData,
+            "chat",
+            userMessage
+        );
         table.push({
             id: id++,
             type: "Chat Reply",
@@ -201,7 +244,13 @@ async function generateInteractionTable() {
     }
 
     console.table(table);
-    await appendToGoogleSheet(table); // Save results to Google Sheets
+    await appendToGoogleSheet(table);
+    console.log(
+        `💰 Total tokens used: ${totalTokensUsed} (~$${(
+            (totalTokensUsed / 1000) *
+            0.03
+        ).toFixed(4)} USD)`
+    );
 }
 
 // Run the script
