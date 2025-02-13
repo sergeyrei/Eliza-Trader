@@ -39,6 +39,7 @@ jobs:
             POST_INTERVAL_MAX: 240 # Default: 180
             POST_IMMEDIATELY: false
             MAX_TWEET_LENGTH: 1400
+            TWITTER_COOKIES: ${{ secrets.TWITTER_COOKIES }}
 
         steps:
             - name: Checkout Code
@@ -106,6 +107,7 @@ jobs:
                     -e CACHE_STORE=$CACHE_STORE \
                     -e DISCORD_APPLICATION_ID=$DISCORD_APPLICATION_ID \
                     -e DISCORD_API_TOKEN=$DISCORD_API_TOKEN \
+                    -e TWITTER_COOKIES=$TWITTER_COOKIES \
                     $ECR_REPOSITORY:latest && echo "Container started successfully" || echo "Failed to start container"
 
                   sleep 30
