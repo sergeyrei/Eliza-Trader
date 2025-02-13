@@ -20,7 +20,10 @@ import { generateTweetActions } from "@elizaos/core";
 import { type IImageDescriptionService, ServiceType } from "@elizaos/core";
 import { buildConversationThread, fetchMediaData } from "./utils.ts";
 import { twitterMessageHandlerTemplate } from "./interactions.ts";
-import { DEFAULT_MAX_TWEET_LENGTH } from "./environment.ts";
+import {
+    DEFAULT_MAX_TWEET_LENGTH,
+    DEFAULT_MAX_THREAD_TWEET_LENGTH,
+} from "./environment.ts";
 import {
     Client,
     Events,
@@ -452,20 +455,27 @@ export class TwitterPostClient {
 
             let result;
 
-            if (tweetTextForPosting.length > DEFAULT_MAX_TWEET_LENGTH) {
-                result = await this.handleNoteTweet(
+            elizaLogger.log(`Teet text:`, tweetTextForPosting);
+            elizaLogger.log(`Teet text:`, tweetTextForPosting.length);
+
+            if (tweetTextForPosting.length > DEFAULT_MAX_THREAD_TWEET_LENGTH) {
+                elizaLogger.log(
+                    `Tweet text exceeds default max length, posting as a thread.`
+                );
+                result = await this.postThread(
                     client,
                     tweetTextForPosting,
-                    undefined,
                     mediaData
                 );
             } else {
+                elizaLogger.log(`Posting standard tweet.`);
                 result = await this.sendStandardTweet(
                     client,
                     tweetTextForPosting,
                     undefined,
                     mediaData
                 );
+                elizaLogger.log(`Standard tweet posted successfully.`);
             }
 
             const tweet = this.createTweetObject(
@@ -473,6 +483,7 @@ export class TwitterPostClient {
                 client,
                 twitterUsername
             );
+            elizaLogger.log(`Tweet object created.`);
 
             await this.processAndCacheTweet(
                 runtime,
@@ -481,11 +492,72 @@ export class TwitterPostClient {
                 roomId,
                 rawTweetContent
             );
+            elizaLogger.log(`Tweet processed and cached successfully.`);
         } catch (error) {
             elizaLogger.error("Error sending tweet:", error);
         }
     }
 
+    async postThread(
+        client: ClientBase,
+        longText: string,
+        mediaData?: MediaData[]
+    ) {
+        try {
+            console.log(`Creating Twitter thread for long content.`);
+            elizaLogger.log(`Creating Twitter thread for long content.`);
+
+            // Разбить длинный текст на части по 280 символов
+            const tweetParts = this.splitTextIntoTweets(longText, 120);
+            elizaLogger.log(
+                `Splitting long text into ${tweetParts.length} tweets.`
+            );
+
+            let fullThread = undefined;
+            let tweet = undefined; // ID первого твита
+            for (const [index, tweetPart] of tweetParts.entries()) {
+                elizaLogger.log(
+                    `Sending tweet part ${index + 1}: ${tweetPart}`
+                );
+                tweet = await this.sendStandardTweet(
+                    client,
+                    tweetPart,
+                    tweet?.rest_id,
+                    mediaData
+                );
+                elizaLogger.log(`Added tweet to thread:`, tweet);
+                fullThread += tweet;
+                elizaLogger.log(`Tweet part ${index + 1} sent successfully.`);
+            }
+
+            elizaLogger.log("Thread posted successfully!");
+            return fullThread;
+        } catch (error) {
+            console.error("Error posting Twitter thread:", error);
+            elizaLogger.error("Error posting Twitter thread:", error);
+        }
+    }
+
+    private splitTextIntoTweets(text: string, maxLength: number): string[] {
+        const words = text.split(" ");
+        let tweets: string[] = [];
+        let currentTweet = "";
+
+        for (const word of words) {
+            if ((currentTweet + " " + word).length > maxLength) {
+                tweets.push(currentTweet.trim());
+                currentTweet = word;
+            } else {
+                currentTweet += " " + word;
+            }
+        }
+
+        if (currentTweet.length > 0) {
+            tweets.push(currentTweet.trim());
+        }
+
+        return tweets;
+    }
     /**
      * Generates and posts a new tweet. If isDryRun is true, only logs what would have been posted.
      */
@@ -528,13 +600,15 @@ export class TwitterPostClient {
                     twitterPostTemplate,
             });
 
-            elizaLogger.debug("generate post prompt:\n" + context);
+            elizaLogger.log("generate post prompt:\n" + context);
 
             const response = await generateText({
                 runtime: this.runtime,
                 context,
                 modelClass: ModelClass.SMALL,
             });
+
+            elizaLogger.info("response:", response);
 
             const rawTweetContent = cleanJsonResponse(response);
 

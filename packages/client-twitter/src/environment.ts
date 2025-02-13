@@ -6,6 +6,7 @@ import {
 import { z, ZodError } from "zod";
 
 export const DEFAULT_MAX_TWEET_LENGTH = 280;
+export const DEFAULT_MAX_THREAD_TWEET_LENGTH = 200;
 
 const twitterUsernameSchema = z
     .string()
@@ -32,6 +33,10 @@ export const twitterEnvSchema = z.object({
     TWITTER_PASSWORD: z.string().min(1, "X/Twitter password is required"),
     TWITTER_EMAIL: z.string().email("Valid X/Twitter email is required"),
     MAX_TWEET_LENGTH: z.number().int().default(DEFAULT_MAX_TWEET_LENGTH),
+    DEFAULT_MAX_THREAD_TWEET_LENGTH: z
+        .number()
+        .int()
+        .default(DEFAULT_MAX_THREAD_TWEET_LENGTH),
     TWITTER_SEARCH_ENABLE: z.boolean().default(false),
     TWITTER_2FA_SECRET: z.string(),
     TWITTER_RETRY_LIMIT: z.number().int(),
