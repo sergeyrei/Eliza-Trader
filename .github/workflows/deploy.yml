@@ -40,7 +40,7 @@ jobs:
             POST_IMMEDIATELY: false
             MAX_TWEET_LENGTH: 1400
             TWITTER_COOKIES: ${{ secrets.TWITTER_COOKIES }}
-            DEFAULT_MAX_THREAD_TWEET_LENGTH: 800
+            DEFAULT_MAX_THREAD_TWEET_LENGTH: 300
 
         steps:
             - name: Checkout Code
