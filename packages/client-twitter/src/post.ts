@@ -462,9 +462,10 @@ export class TwitterPostClient {
                 elizaLogger.log(
                     `Tweet text exceeds default max length, posting as a thread.`
                 );
-                result = await this.postThread(
+                result = await this.sendStandardTweet(
                     client,
                     tweetTextForPosting,
+                    undefined,
                     mediaData
                 );
             } else {
@@ -665,6 +666,25 @@ export class TwitterPostClient {
                 fixNewLines(tweetTextForPosting)
             );
 
+            // **Generate an AI Image based on the tweet text**
+            if (Math.random() < 0.33 {
+                try {
+                    const aiGeneratedImage = await this.generateImageFromAI(
+                        tweetTextForPosting
+                    );
+                    mediaData = [
+                        {
+                            data: Buffer.from(aiGeneratedImage, "base64"),
+                            mediaType: "image/png",
+                        },
+                    ];
+                    elizaLogger.info("AI image generated successfully.");
+                } catch (imageError) {
+                    elizaLogger.error("Error generating AI image:", imageError);
+                    mediaData = [];
+                }
+            }
+
             if (this.isDryRun) {
                 elizaLogger.info(
                     `Dry run: would have posted tweet: ${tweetTextForPosting}`
@@ -703,6 +723,36 @@ export class TwitterPostClient {
             }
         } catch (error) {
             elizaLogger.error("Error generating new tweet:", error);
+        }
+    }
+
+    private async generateImageFromAI(prompt: string): Promise<string> {
+        const systemPrompt =
+            "Generate a highly engaging image without any words or letters for a tweet based on the following tweet content with style of 'cartoon 3d pixar':";
+
+        const response = await fetch(
+            "https://api.openai.com/v1/images/generations",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+                },
+                body: JSON.stringify({
+                    model: "dall-e-3",
+                    prompt: `${systemPrompt} "${prompt}"`,
+                    n: 1,
+                    size: "1024x1024",
+                    response_format: "b64_json",
+                }),
+            }
+        );
+
+        const data = await response.json();
+        if (data?.data?.length > 0) {
+            return data.data[0].b64_json;
+        } else {
+            throw new Error("Failed to generate image");
         }
     }
 
