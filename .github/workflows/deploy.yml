@@ -38,7 +38,7 @@ jobs:
             POST_INTERVAL_MIN: 180 # Default: 90
             POST_INTERVAL_MAX: 240 # Default: 180
             POST_IMMEDIATELY: false
-            MAX_TWEET_LENGTH: 1400
+            MAX_TWEET_LENGTH: 800
             TWITTER_COOKIES: ${{ secrets.TWITTER_COOKIES }}
             DEFAULT_MAX_THREAD_TWEET_LENGTH: 300
 
