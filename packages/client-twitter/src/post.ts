@@ -507,8 +507,11 @@ export class TwitterPostClient {
             console.log(`Creating Twitter thread for long content.`);
             elizaLogger.log(`Creating Twitter thread for long content.`);
 
-            // Разбить длинный текст на части по 280 символов
-            const tweetParts = this.splitTextIntoTweets(longText, 120);
+            // Разбить длинный текст на части по DEFAULT_MAX_THREAD_TWEET_LENGTH символов
+            const tweetParts = this.splitTextIntoTweets(
+                longText,
+                DEFAULT_MAX_THREAD_TWEET_LENGTH
+            );
             elizaLogger.log(
                 `Splitting long text into ${tweetParts.length} tweets.`
             );
