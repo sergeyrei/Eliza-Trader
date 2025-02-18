@@ -41,6 +41,7 @@ jobs:
             MAX_TWEET_LENGTH: 800
             TWITTER_COOKIES: ${{ secrets.TWITTER_COOKIES }}
             DEFAULT_MAX_THREAD_TWEET_LENGTH: 300
+            DEFAULT_LOG_LEVEL: debug
 
         steps:
             - name: Checkout Code
@@ -110,6 +111,7 @@ jobs:
                     -e DISCORD_API_TOKEN=$DISCORD_API_TOKEN \
                     -e TWITTER_COOKIES=$TWITTER_COOKIES \
                     -e DEFAULT_MAX_THREAD_TWEET_LENGTH=$DEFAULT_MAX_THREAD_TWEET_LENGTH \
+                    -e DEFAULT_LOG_LEVEL=$DEFAULT_LOG_LEVEL \
                     $ECR_REPOSITORY:latest && echo "Container started successfully" || echo "Failed to start container"
 
                   sleep 30

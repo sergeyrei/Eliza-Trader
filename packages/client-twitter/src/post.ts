@@ -457,6 +457,10 @@ export class TwitterPostClient {
 
             elizaLogger.log(`Teet text:`, tweetTextForPosting);
             elizaLogger.log(`Teet text:`, tweetTextForPosting.length);
+            elizaLogger.log(
+                `DEFAULT_MAX_THREAD_TWEET_LENGTH:`,
+                DEFAULT_MAX_THREAD_TWEET_LENGTH
+            );
 
             if (tweetTextForPosting.length > DEFAULT_MAX_THREAD_TWEET_LENGTH) {
                 elizaLogger.log(
@@ -547,7 +551,6 @@ export class TwitterPostClient {
             elizaLogger.log("Thread posted successfully!");
             return fullThread;
         } catch (error) {
-            console.error("Error posting Twitter thread:", error);
             elizaLogger.error("Error posting Twitter thread:", error);
         }
     }
