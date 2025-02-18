@@ -6,7 +6,7 @@ import {
 import { z, ZodError } from "zod";
 
 export const DEFAULT_MAX_TWEET_LENGTH = 280;
-export const DEFAULT_MAX_THREAD_TWEET_LENGTH = 400;
+export const DEFAULT_MAX_THREAD_TWEET_LENGTH = 174;
 
 const twitterUsernameSchema = z
     .string()
