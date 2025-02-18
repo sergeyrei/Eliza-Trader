@@ -462,10 +462,9 @@ export class TwitterPostClient {
                 elizaLogger.log(
                     `Tweet text exceeds default max length, posting as a thread.`
                 );
-                result = await this.sendStandardTweet(
+                result = await this.postThread(
                     client,
                     tweetTextForPosting,
-                    undefined,
                     mediaData
                 );
             } else {
@@ -520,12 +519,23 @@ export class TwitterPostClient {
                 elizaLogger.log(
                     `Sending tweet part ${index + 1}: ${tweetPart}`
                 );
-                tweet = await this.sendStandardTweet(
-                    client,
-                    tweetPart,
-                    tweet?.rest_id,
-                    mediaData
-                );
+                if (mediaData && tweet == undefined) {
+                    tweet = await this.sendStandardTweet(
+                        client,
+                        tweetPart,
+                        tweet?.rest_id,
+                        mediaData
+                    );
+
+                    mediaData = [];
+                } else {
+                    tweet = await this.sendStandardTweet(
+                        client,
+                        tweetPart,
+                        tweet?.rest_id,
+                        mediaData
+                    );
+                }
                 elizaLogger.log(`Added tweet to thread:`, tweet);
                 fullThread += tweet;
                 elizaLogger.log(`Tweet part ${index + 1} sent successfully.`);
