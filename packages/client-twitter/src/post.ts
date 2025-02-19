@@ -457,18 +457,15 @@ export class TwitterPostClient {
 
             elizaLogger.log(`Teet text:`, tweetTextForPosting);
             elizaLogger.log(`Teet text:`, tweetTextForPosting.length);
-            elizaLogger.log(
-                `DEFAULT_MAX_THREAD_TWEET_LENGTH:`,
-                DEFAULT_MAX_THREAD_TWEET_LENGTH
-            );
 
-            if (tweetTextForPosting.length > DEFAULT_MAX_THREAD_TWEET_LENGTH) {
+            if (tweetTextForPosting.length > DEFAULT_MAX_TWEET_LENGTH) {
                 elizaLogger.log(
                     `Tweet text exceeds default max length, posting as a thread.`
                 );
-                result = await this.postThread(
+                result = await this.handleNoteTweet(
                     client,
                     tweetTextForPosting,
+                    undefined,
                     mediaData
                 );
             } else {
