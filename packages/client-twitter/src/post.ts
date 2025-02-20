@@ -680,7 +680,8 @@ export class TwitterPostClient {
             );
 
             // **Generate an AI Image based on the tweet text**
-            if (Math.random() < 0.33) {
+            if (false) {
+                // while
                 try {
                     const aiGeneratedImage = await this.generateImageFromAI(
                         tweetTextForPosting
