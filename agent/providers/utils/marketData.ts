@@ -3,44 +3,80 @@ import fetch from "node-fetch";
 import Parser from "rss-parser";
 
 const API_URL = "https://api.coingecko.com/api/v3/simple/price";
-const NEWS_FEEDS = [
-    "https://cointelegraph.com/rss"
-];
+const NEWS_FEEDS = ["https://cointelegraph.com/rss"];
 
 const COINS = [
-    'bitcoin', 'ethereum', 'binancecoin', 'solana', 'cardano',
-    'polkadot', 'avalanche-2', 'chainlink', 'uniswap', 'aave',
-    'maker', 'compound-governance-token', 'yearn-finance', 'sushi',
-    'curve-dao-token', 'dogecoin', 'shiba-inu', 'matic-network',
-    'cosmos', 'near', 'pepe', 'floki', 'bonk', 'wojak',
-    'singularitynet', 'fetch-ai', 'deepbrain-chain', 'numerai',
-    'ocean-protocol', 'cortex', 'velas', 'iexec-rlc',
-    'matrix-ai-network', 'robonomics-network',
-    'ai-blockchain', 'todaq', 'neureal', 'seedtoken', 'autonio',
-    'tac', 'gnosis', 'graph', 'ai16z'
+    "bitcoin",
+    "ethereum",
+    "binancecoin",
+    "solana",
+    "cardano",
+    "polkadot",
+    "avalanche-2",
+    "chainlink",
+    "uniswap",
+    "aave",
+    "maker",
+    "compound-governance-token",
+    "yearn-finance",
+    "sushi",
+    "curve-dao-token",
+    "dogecoin",
+    "shiba-inu",
+    "matic-network",
+    "cosmos",
+    "near",
+    "pepe",
+    "floki",
+    "bonk",
+    "wojak",
+    "singularitynet",
+    "fetch-ai",
+    "deepbrain-chain",
+    "numerai",
+    "ocean-protocol",
+    "cortex",
+    "velas",
+    "iexec-rlc",
+    "matrix-ai-network",
+    "robonomics-network",
+    "ai-blockchain",
+    "todaq",
+    "neureal",
+    "seedtoken",
+    "autonio",
+    "tac",
+    "gnosis",
+    "graph",
+    "ai16z",
 ];
 
 interface MarketData {
     usd_24h_change?: number; // Optional because API might not return it
-    usd?: number;            // Optional because API might not return it
-    usd_24h_vol?: number;    // Optional because API might not return it
+    usd?: number; // Optional because API might not return it
+    usd_24h_vol?: number; // Optional because API might not return it
 }
 
 export const getMarketData = async () => {
     try {
         const response = await fetch(
-            `${API_URL}?ids=${COINS.join(',')}&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true`
+            `${API_URL}?ids=${COINS.join(
+                ","
+            )}&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true`
         );
 
         if (!response.ok) {
-            throw new Error('Failed to fetch crypto data');
+            throw new Error("Failed to fetch crypto data");
         }
 
         const data = await response.json();
         elizaLogger.log("Market data fetched successfully.");
         return data;
     } catch (error) {
-        elizaLogger.error("Error fetching market data:", error.message || error);
+        elizaLogger.error(
+            "Error fetching market data:",
+            error.message || error
+        );
         throw error;
     }
 };
@@ -58,8 +94,9 @@ const formatDataItem = (item) => {
 
     return {
         ...item,
-        formattedPrice: item.price < 0.01 ? item.price.toFixed(8) : item.price.toFixed(2),
-        formattedVolume: (item.volume / 1e9).toFixed(1)
+        formattedPrice:
+            item.price < 0.01 ? item.price.toFixed(8) : item.price.toFixed(2),
+        formattedVolume: (item.volume / 1e9).toFixed(1),
     };
 };
 
@@ -69,55 +106,106 @@ export const formatMarketData = (marketData: Record<string, MarketData>) => {
             coin,
             change: data.usd_24h_change || 0,
             price: data.usd || 0,
-            volume: data.usd_24h_vol || 0
+            volume: data.usd_24h_vol || 0,
         }))
         .sort((a, b) => Math.abs(b.change) - Math.abs(a.change));
 
     const categorize = (coins) =>
         significantMovers
-            .filter(m => coins.includes(m.coin))
+            .filter((m) => coins.includes(m.coin))
             .map(formatDataItem);
 
-    const layer1s = categorize(['bitcoin', 'ethereum', 'solana', 'cardano', 'avalanche-2']);
-    const defi = categorize(['uniswap', 'aave', 'maker', 'compound-governance-token']);
-    const memecoins = categorize(['dogecoin', 'shiba-inu', 'pepe', 'floki', 'bonk', 'wojak']);
-    const altcoins = categorize(['polkadot', 'cosmos', 'near', 'matic-network']);
+    const layer1s = categorize([
+        "bitcoin",
+        "ethereum",
+        "solana",
+        "cardano",
+        "avalanche-2",
+    ]);
+    const defi = categorize([
+        "uniswap",
+        "aave",
+        "maker",
+        "compound-governance-token",
+    ]);
+    const memecoins = categorize([
+        "dogecoin",
+        "shiba-inu",
+        "pepe",
+        "floki",
+        "bonk",
+        "wojak",
+    ]);
+    const altcoins = categorize([
+        "polkadot",
+        "cosmos",
+        "near",
+        "matic-network",
+    ]);
     const aiAgents = categorize([
-        'singularitynet', 'fetch-ai', 'deepbrain-chain', 'numerai',
-        'ocean-protocol', 'cortex', 'velas', 'iexec-rlc',
-        'matrix-ai-network', 'robonomics-network',
-        'ai-blockchain', 'todaq', 'neureal', 'seedtoken', 'autonio',
-        'tac', 'gnosis', 'graph', 'ai16z'
+        "singularitynet",
+        "fetch-ai",
+        "deepbrain-chain",
+        "numerai",
+        "ocean-protocol",
+        "cortex",
+        "velas",
+        "iexec-rlc",
+        "matrix-ai-network",
+        "robonomics-network",
+        "ai-blockchain",
+        "todaq",
+        "neureal",
+        "seedtoken",
+        "autonio",
+        "tac",
+        "gnosis",
+        "graph",
+        "ai16z",
     ]);
 
-    elizaLogger.log("Market data formatted successfully.", { layer1s, defi, memecoins, altcoins, aiAgents });
+    elizaLogger.log("Market data formatted successfully.", {
+        layer1s,
+        defi,
+        memecoins,
+        altcoins,
+        aiAgents,
+    });
     return { layer1s, defi, memecoins, altcoins, aiAgents };
 };
 
 export const formatSection = (title, data) =>
-    `${title}: ${data.map(m =>
-        `$${m.coin.toUpperCase()} $${m.formattedPrice} (${m.change.toFixed(1)}% | Vol: $${m.formattedVolume}B)`
-    ).join(', ')}`;
+    `${title}: ${data
+        .map(
+            (m) =>
+                `$${m.coin.toUpperCase()} $${
+                    m.formattedPrice
+                } (${m.change.toFixed(1)}% | Vol: $${m.formattedVolume}B)`
+        )
+        .join(", ")}`;
 
 export const getCryptoNews = async () => {
     try {
         const parser = new Parser();
-        const newsPromises = NEWS_FEEDS.map(feed => parser.parseURL(feed));
+        const newsPromises = NEWS_FEEDS.map((feed) => parser.parseURL(feed));
         const newsResults = await Promise.all(newsPromises);
 
-        const articles = newsResults.flatMap(result =>
-            result.items.map(item => ({
+        const articles = newsResults.flatMap((result) =>
+            result.items.map((item) => ({
                 title: item.title,
                 link: item.link,
                 pubDate: item.pubDate,
-                source: result.title
+                source: result.title,
             }))
         );
 
         elizaLogger.log("Crypto news fetched successfully.");
         return articles;
     } catch (error) {
-        elizaLogger.error("Error fetching crypto news:", error.message || error);
+        elizaLogger.error(
+            "Error fetching crypto news:",
+            error.message || error
+        );
         throw new Error("Failed to fetch crypto news. Please try again later.");
     }
 };

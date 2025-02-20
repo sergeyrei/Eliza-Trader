@@ -3,6 +3,7 @@ import {
     MemoryManager,
     formatMessages,
     type AgentRuntime as IAgentRuntime,
+    elizaLogger,
 } from "@elizaos/core";
 import type { Memory, Provider, State } from "@elizaos/core";
 import { formatFacts } from "../evaluators/fact.ts";
@@ -52,9 +53,13 @@ const factsProvider: Provider = {
 
         const formattedFacts = formatFacts(allFacts);
 
-        return "Key facts that {{agentName}} knows:\n{{formattedFacts}}"
+        const result = "Key facts that {{agentName}} knows:\n{{formattedFacts}}"
             .replace("{{agentName}}", runtime.character.name)
             .replace("{{formattedFacts}}", formattedFacts);
+
+        elizaLogger.info(result);
+
+        return result;
     },
 };
 

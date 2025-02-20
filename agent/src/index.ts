@@ -63,7 +63,6 @@ import { fileURLToPath } from "url";
 import yargs from "yargs";
 import { MongoClient } from "mongodb";
 
-import { timeProvider } from "../providers/timeProvider";
 import { cryptoPriceProvider } from "../providers/cryptoPriceProvider";
 import { cryptoNewsProvider } from "../providers/cryptoNewsProvider";
 
@@ -822,13 +821,11 @@ export async function createAgent(
             getSecret(character, "COINBASE_NOTIFICATION_URI")
                 ? webhookPlugin
                 : null,
-            goatPlugin,
             zilliqaPlugin,
             getSecret(character, "COINGECKO_API_KEY") ||
             getSecret(character, "COINGECKO_PRO_API_KEY")
                 ? coingeckoPlugin
                 : null,
-            getSecret(character, "EVM_PROVIDER_URL") ? goatPlugin : null,
             getSecret(character, "OPEN_WEATHER_API_KEY")
                 ? openWeatherPlugin
                 : null,
@@ -841,7 +838,7 @@ export async function createAgent(
         ]
             .flat()
             .filter(Boolean),
-        providers: [cryptoPriceProvider, cryptoNewsProvider],
+        providers: [cryptoNewsProvider],
         managers: [],
         cacheManager: cache,
         fetch: logFetch,
@@ -1012,7 +1009,7 @@ const startAgents = async () => {
     const charactersArg = args.characters || args.character;
     let characters = [defaultCharacter];
 
-    if ((charactersArg) || hasValidRemoteUrls()) {
+    if (charactersArg || hasValidRemoteUrls()) {
         characters = await loadCharacters(charactersArg);
     }
 

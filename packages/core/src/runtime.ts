@@ -1282,6 +1282,8 @@ export class AgentRuntime implements IAgentRuntime {
             conversationHeader: false,
         });
 
+        elizaLogger.info("RecentPosts:", recentPosts);
+
         // const lore = formatLore(loreData);
 
         const senderName = actorsData?.find(
@@ -1352,7 +1354,7 @@ Text: ${attachment.text}
                 const messageString = `${post}`;
                 return messageString;
             })
-            .slice(0, 50)
+            .slice(0, 5)
             .join("\n");
 
         const formattedCharacterMessageExamples = this.character.messageExamples

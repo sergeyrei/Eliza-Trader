@@ -1,4 +1,10 @@
-import type { IAgentRuntime, Memory, Provider, State } from "@elizaos/core";
+import {
+    elizaLogger,
+    type IAgentRuntime,
+    type Memory,
+    type Provider,
+    type State,
+} from "@elizaos/core";
 
 const boredomLevels = [
     {
@@ -334,7 +340,11 @@ const boredomProvider: Provider = {
             Math.random() * boredomLevel.statusMessages.length
         );
         const selectedMessage = boredomLevel.statusMessages[randomIndex];
-        return selectedMessage.replace("{{agentName}}", agentName);
+        const result = selectedMessage.replace("{{agentName}}", agentName);
+
+        elizaLogger.info("Boredom result: ", result);
+
+        return result;
     },
 };
 
