@@ -42,9 +42,9 @@ jobs:
             TWITTER_COOKIES: ${{ secrets.TWITTER_COOKIES }}
             DEFAULT_MAX_THREAD_TWEET_LENGTH: 174
             DEFAULT_LOG_LEVEL: info
-            ACTION_INTERVAL: 300000 # Interval in milliseconds between action processing runs (default: 5 minutes)
+            ACTION_INTERVAL: 4000000 # Interval in milliseconds between action processing runs (default: 5 minutes)
             ENABLE_ACTION_PROCESSING: true # Set to true to enable the action processing loop
-            MAX_ACTIONS_PROCESSING: 5
+            MAX_ACTIONS_PROCESSING: 3
 
         steps:
             - name: Checkout Code
