@@ -7,6 +7,7 @@ import { z, ZodError } from "zod";
 
 export const DEFAULT_MAX_TWEET_LENGTH = 280;
 export const DEFAULT_MAX_THREAD_TWEET_LENGTH = 174;
+export const DEFAULT_MAX_ACTIONS_PROCESSING = 3;
 
 const twitterUsernameSchema = z
     .string()
@@ -76,7 +77,10 @@ export const twitterEnvSchema = z.object({
     ACTION_INTERVAL: z.number().int(),
     POST_IMMEDIATELY: z.boolean(),
     TWITTER_SPACES_ENABLE: z.boolean().default(false),
-    MAX_ACTIONS_PROCESSING: z.number().int(),
+    MAX_ACTIONS_PROCESSING: z
+        .number()
+        .int()
+        .default(DEFAULT_MAX_ACTIONS_PROCESSING),
     ACTION_TIMELINE_TYPE: z
         .nativeEnum(ActionTimelineType)
         .default(ActionTimelineType.ForYou),

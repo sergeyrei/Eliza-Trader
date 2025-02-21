@@ -35,7 +35,7 @@ import type { State } from "@elizaos/core";
 import type { ActionResponse } from "@elizaos/core";
 import { MediaData } from "./types.ts";
 
-const MAX_TIMELINES_TO_FETCH = 15;
+const MAX_TIMELINES_TO_FETCH = 8;
 
 const twitterPostTemplate = `
 # Areas of Expertise
