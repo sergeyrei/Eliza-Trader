@@ -64,6 +64,7 @@ Rules:
 5. instead of calling for some action, tell why it is useful
 6. if {{topic}} related to news then use NEWS SECTION to find hot title
 7. it should not be about devs , etc rather should be for beginners and about how they make money or others making money
+8. shorter, more engaging and entertaining, providing reasoning  or solution
 
 Write a post that is {{adjective}} about {{topic}} (without mentioning {{topic}} directly), from the perspective of {{agentName}}. Do not add commentary or acknowledge this request, just write the post.
 Your response should not contain any questions. Brief, concise statements only. The total character count MUST be less than {{maxTweetLength}}. No emojis. Use \\n\\n (double spaces) between statements if there are multiple statements in your response.`;
@@ -271,6 +272,11 @@ export class TwitterPostClient {
 
         const processActionsLoop = async () => {
             const actionInterval = this.client.twitterConfig.ACTION_INTERVAL; // Defaults to 5 minutes
+
+            elizaLogger.info(
+                "this.stopProcessingActions: ",
+                this.stopProcessingActions
+            );
 
             while (!this.stopProcessingActions) {
                 try {
@@ -877,8 +883,12 @@ export class TwitterPostClient {
             const timelines = await this.client.fetchTimelineForActions(
                 MAX_TIMELINES_TO_FETCH
             );
+
+            elizaLogger.info("timelines:", timelines);
             const maxActionsProcessing =
                 this.client.twitterConfig.MAX_ACTIONS_PROCESSING;
+
+            elizaLogger.info("maxActionsProcessing:", maxActionsProcessing);
             const processedTimelines = [];
 
             for (const tweet of timelines) {

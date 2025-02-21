@@ -6,7 +6,7 @@ import {
 import { z, ZodError } from "zod";
 
 export const DEFAULT_MAX_CAST_LENGTH = 320;
-const DEFAULT_POLL_INTERVAL= 120; // 2 minutes
+const DEFAULT_POLL_INTERVAL = 120; // 2 minutes
 const DEFAULT_POST_INTERVAL_MIN = 90; // 1.5 hours
 const DEFAULT_POST_INTERVAL_MAX = 180; // 3 hours
 /**
@@ -49,12 +49,11 @@ export async function validateFarcasterConfig(
 ): Promise<FarcasterConfig> {
     try {
         const farcasterConfig = {
-            FARCASTER_DRY_RUN:
-                parseBooleanFromText(
-                    runtime.getSetting("FARCASTER_DRY_RUN") ||
-                        process.env.FARCASTER_DRY_RUN ||
-                        "false"
-                ),
+            FARCASTER_DRY_RUN: parseBooleanFromText(
+                runtime.getSetting("FARCASTER_DRY_RUN") ||
+                    process.env.FARCASTER_DRY_RUN ||
+                    "false"
+            ),
 
             FARCASTER_FID: safeParseInt(
                 runtime.getSetting("FARCASTER_FID") ||
@@ -118,11 +117,9 @@ export async function validateFarcasterConfig(
                 1
             ),
 
-            ACTION_TIMELINE_TYPE: (
-                runtime.getSetting("ACTION_TIMELINE_TYPE") ||
+            ACTION_TIMELINE_TYPE: (runtime.getSetting("ACTION_TIMELINE_TYPE") ||
                 process.env.ACTION_TIMELINE_TYPE ||
-                ActionTimelineType.ForYou
-            ) as ActionTimelineType,
+                ActionTimelineType.ForYou) as ActionTimelineType,
         };
 
         return farcasterEnvSchema.parse(farcasterConfig);
