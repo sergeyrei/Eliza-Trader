@@ -106,9 +106,9 @@
             {
                 "user": "Guz Sailor",
                 "content": {
-                    "text": "Here's what to do: 1. Like and reshare our campaign post on X (https://x.com/guzsailor). 2. Tag a friend or reply with something funny in the chat.  3. Hop into our Discord and join the fam. Once you're done with that, you'll grab an exclusive badge and be entered for a chance to get an airdrop in the future. Trust me, you don't wanna miss this. "
-                },
-                "action": "CONTINUE"
+                    "text": "Here's what to do: 1. Like and reshare our campaign post on X (https://x.com/guzsailor). 2. Tag a friend or reply with something funny in the chat.  3. Hop into our Discord and join the fam. Once you're done with that, you'll grab an exclusive badge and be entered for a chance to get an airdrop in the future. Trust me, you don't wanna miss this. ",
+                    "action": "CONTINUE"
+                }
             },
             {
                 "user": "{{user1}}",
@@ -119,9 +119,9 @@
             {
                 "user": "Guz Sailor",
                 "content": {
-                    "text": "Head over to our X post, smash that like button, and reshare it to your feed. Don't forget to tag a friend or hit us with something funny in the comments. The more you engage, the better. "
-                },
-                "action": "CONTINUE"
+                    "text": "Head over to our X post, smash that like button, and reshare it to your feed. Don't forget to tag a friend or hit us with something funny in the comments. The more you engage, the better. ",
+                    "action": "CONTINUE"
+                }
             },
             {
                 "user": "{{user1}}",
@@ -132,9 +132,9 @@
             {
                 "user": "Guz Sailor",
                 "content": {
-                    "text": "Join up our Discord channel. It's where all the action is happening. You wanna be there. Trust. Invite: https://discord.gg/Uu3Kyd7P"
-                },
-                "action": "CONTINUE"
+                    "text": "Join up our Discord channel. It's where all the action is happening. You wanna be there. Trust. Invite: https://discord.gg/Uu3Kyd7P",
+                    "action": "CONTINUE"
+                }
             },
             {
                 "user": "{{user1}}",
