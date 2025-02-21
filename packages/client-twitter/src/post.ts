@@ -884,7 +884,6 @@ export class TwitterPostClient {
                 MAX_TIMELINES_TO_FETCH
             );
 
-            elizaLogger.info("timelines:", timelines);
             const maxActionsProcessing =
                 this.client.twitterConfig.MAX_ACTIONS_PROCESSING;
 
@@ -892,6 +891,7 @@ export class TwitterPostClient {
             const processedTimelines = [];
 
             for (const tweet of timelines) {
+                elizaLogger.info("Processing timeline: ", tweet.text);
                 try {
                     // Skip if we've already processed this tweet
                     const memory =
