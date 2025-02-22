@@ -28,7 +28,7 @@ import {
     discordShouldRespondTemplate,
     discordMessageHandlerTemplate,
     discordAutoPostTemplate,
-    discordAnnouncementHypeTemplate
+    discordAnnouncementHypeTemplate,
 } from "./templates.ts";
 import {
     IGNORE_RESPONSE_WORDS,
@@ -90,12 +90,24 @@ export class MessageManager {
         this.attachmentManager = new AttachmentManager(this.runtime);
 
         this.autoPostConfig = {
-            enabled: this.runtime.character.clientConfig?.discord?.autoPost?.enabled || false,
-            monitorTime: this.runtime.character.clientConfig?.discord?.autoPost?.monitorTime || 300000,
-            inactivityThreshold: this.runtime.character.clientConfig?.discord?.autoPost?.inactivityThreshold || 3600000, // 1 hour default
-            mainChannelId: this.runtime.character.clientConfig?.discord?.autoPost?.mainChannelId,
-            announcementChannelIds: this.runtime.character.clientConfig?.discord?.autoPost?.announcementChannelIds || [],
-            minTimeBetweenPosts: this.runtime.character.clientConfig?.discord?.autoPost?.minTimeBetweenPosts || 7200000, // 2 hours default
+            enabled:
+                this.runtime.character.clientConfig?.discord?.autoPost
+                    ?.enabled || false,
+            monitorTime:
+                this.runtime.character.clientConfig?.discord?.autoPost
+                    ?.monitorTime || 300000,
+            inactivityThreshold:
+                this.runtime.character.clientConfig?.discord?.autoPost
+                    ?.inactivityThreshold || 3600000, // 1 hour default
+            mainChannelId:
+                this.runtime.character.clientConfig?.discord?.autoPost
+                    ?.mainChannelId,
+            announcementChannelIds:
+                this.runtime.character.clientConfig?.discord?.autoPost
+                    ?.announcementChannelIds || [],
+            minTimeBetweenPosts:
+                this.runtime.character.clientConfig?.discord?.autoPost
+                    ?.minTimeBetweenPosts || 7200000, // 2 hours default
         };
 
         if (this.autoPostConfig.enabled) {
@@ -104,9 +116,12 @@ export class MessageManager {
     }
 
     async handleMessage(message: DiscordMessage) {
-
-        if (this.runtime.character.clientConfig?.discord?.allowedChannelIds &&
-            !this.runtime.character.clientConfig.discord.allowedChannelIds.includes(message.channelId)) {
+        if (
+            this.runtime.character.clientConfig?.discord?.allowedChannelIds &&
+            !this.runtime.character.clientConfig.discord.allowedChannelIds.includes(
+                message.channelId
+            )
+        ) {
             return;
         }
 
@@ -438,6 +453,8 @@ export class MessageManager {
                     stopTyping();
                 });
 
+                elizaLogger.info("responseContent:", responseContent);
+
                 responseContent.text = responseContent.text?.trim();
                 responseContent.inReplyTo = stringToUuid(
                     message.id + "-" + this.runtime.agentId
@@ -553,13 +570,19 @@ export class MessageManager {
     private _startAutoPostMonitoring(): void {
         // Wait for client to be ready
         if (!this.client.isReady()) {
-            elizaLogger.info('[AutoPost Discord] Client not ready, waiting for ready event')
-            this.client.once('ready', () => {
-                elizaLogger.info('[AutoPost Discord] Client ready, starting monitoring')
+            elizaLogger.info(
+                "[AutoPost Discord] Client not ready, waiting for ready event"
+            );
+            this.client.once("ready", () => {
+                elizaLogger.info(
+                    "[AutoPost Discord] Client ready, starting monitoring"
+                );
                 this._initializeAutoPost();
             });
         } else {
-            elizaLogger.info('[AutoPost Discord] Client already ready, starting monitoring')
+            elizaLogger.info(
+                "[AutoPost Discord] Client already ready, starting monitoring"
+            );
             this._initializeAutoPost();
         }
     }
@@ -578,63 +601,91 @@ export class MessageManager {
     }
 
     private async _checkChannelActivity(): Promise<void> {
-        if (!this.autoPostConfig.enabled || !this.autoPostConfig.mainChannelId) return;
+        if (!this.autoPostConfig.enabled || !this.autoPostConfig.mainChannelId)
+            return;
 
-        const channel = this.client.channels.cache.get(this.autoPostConfig.mainChannelId) as TextChannel;
+        const channel = this.client.channels.cache.get(
+            this.autoPostConfig.mainChannelId
+        ) as TextChannel;
         if (!channel) return;
 
         try {
             // Get last message time
             const messages = await channel.messages.fetch({ limit: 1 });
             const lastMessage = messages.first();
-            const lastMessageTime = lastMessage ? lastMessage.createdTimestamp : 0;
+            const lastMessageTime = lastMessage
+                ? lastMessage.createdTimestamp
+                : 0;
 
             const now = Date.now();
             const timeSinceLastMessage = now - lastMessageTime;
-            const timeSinceLastAutoPost = now - (this.autoPostConfig.lastAutoPost || 0);
+            const timeSinceLastAutoPost =
+                now - (this.autoPostConfig.lastAutoPost || 0);
 
             // Add some randomness to the inactivity threshold (±30 minutes)
-            const randomThreshold = this.autoPostConfig.inactivityThreshold +
+            const randomThreshold =
+                this.autoPostConfig.inactivityThreshold +
                 (Math.random() * 1800000 - 900000);
 
             // Check if we should post
-            if ((timeSinceLastMessage > randomThreshold) &&
-                timeSinceLastAutoPost > (this.autoPostConfig.minTimeBetweenPosts || 0)) {
-
+            if (
+                timeSinceLastMessage > randomThreshold &&
+                timeSinceLastAutoPost >
+                    (this.autoPostConfig.minTimeBetweenPosts || 0)
+            ) {
                 try {
                     // Create memory and generate response
-                    const roomId = stringToUuid(channel.id + "-" + this.runtime.agentId);
+                    const roomId = stringToUuid(
+                        channel.id + "-" + this.runtime.agentId
+                    );
 
                     const memory = {
                         id: stringToUuid(`autopost-${Date.now()}`),
                         userId: this.runtime.agentId,
                         agentId: this.runtime.agentId,
                         roomId,
-                        content: { text: "AUTO_POST_ENGAGEMENT", source: "discord" },
+                        content: {
+                            text: "AUTO_POST_ENGAGEMENT",
+                            source: "discord",
+                        },
                         embedding: getEmbeddingZeroVector(),
-                        createdAt: Date.now()
+                        createdAt: Date.now(),
                     };
 
                     let state = await this.runtime.composeState(memory, {
                         discordClient: this.client,
                         discordMessage: null,
-                        agentName: this.runtime.character.name || this.client.user?.displayName
+                        agentName:
+                            this.runtime.character.name ||
+                            this.client.user?.displayName,
                     });
 
                     // Generate response using template
                     const context = composeContext({
                         state,
-                        template: this.runtime.character.templates?.discordAutoPostTemplate || discordAutoPostTemplate
+                        template:
+                            this.runtime.character.templates
+                                ?.discordAutoPostTemplate ||
+                            discordAutoPostTemplate,
                     });
 
-                    const responseContent = await this._generateResponse(memory, state, context);
+                    const responseContent = await this._generateResponse(
+                        memory,
+                        state,
+                        context
+                    );
                     if (!responseContent?.text) return;
 
                     // Send message and update memory
-                    const messages = await sendMessageInChunks(channel, responseContent.text.trim(), null, []);
+                    const messages = await sendMessageInChunks(
+                        channel,
+                        responseContent.text.trim(),
+                        null,
+                        []
+                    );
 
                     // Create and store memories
-                    const memories = messages.map(m => ({
+                    const memories = messages.map((m) => ({
                         id: stringToUuid(m.id + "-" + this.runtime.agentId),
                         userId: this.runtime.agentId,
                         agentId: this.runtime.agentId,
@@ -659,107 +710,183 @@ export class MessageManager {
                     elizaLogger.warn("[AutoPost Discord] Error:", error);
                 }
             } else {
-                elizaLogger.warn("[AutoPost Discord] Activity within threshold. Not posting.");
+                elizaLogger.warn(
+                    "[AutoPost Discord] Activity within threshold. Not posting."
+                );
             }
         } catch (error) {
-            elizaLogger.warn("[AutoPost Discord] Error checking last message:", error);
+            elizaLogger.warn(
+                "[AutoPost Discord] Error checking last message:",
+                error
+            );
         }
     }
 
     private async _monitorAnnouncementChannels(): Promise<void> {
-        if (!this.autoPostConfig.enabled || !this.autoPostConfig.announcementChannelIds.length) {
-            elizaLogger.warn('[AutoPost Discord] Auto post config disabled or no announcement channels')
+        if (
+            !this.autoPostConfig.enabled ||
+            !this.autoPostConfig.announcementChannelIds.length
+        ) {
+            elizaLogger.warn(
+                "[AutoPost Discord] Auto post config disabled or no announcement channels"
+            );
             return;
         }
 
-        for (const announcementChannelId of this.autoPostConfig.announcementChannelIds) {
-            const channel = this.client.channels.cache.get(announcementChannelId);
+        for (const announcementChannelId of this.autoPostConfig
+            .announcementChannelIds) {
+            const channel = this.client.channels.cache.get(
+                announcementChannelId
+            );
 
             if (channel) {
                 // Check if it's either a text channel or announcement channel
                 // ChannelType.GuildAnnouncement is 5
                 // ChannelType.GuildText is 0
-                if (channel instanceof TextChannel || channel.type === ChannelType.GuildAnnouncement) {
+                if (
+                    channel instanceof TextChannel ||
+                    channel.type === ChannelType.GuildAnnouncement
+                ) {
                     const newsChannel = channel as TextChannel;
                     try {
-                        newsChannel.createMessageCollector().on('collect', async (message: DiscordMessage) => {
-                            if (message.author.bot || Date.now() - message.createdTimestamp > 300000) return;
+                        newsChannel
+                            .createMessageCollector()
+                            .on("collect", async (message: DiscordMessage) => {
+                                if (
+                                    message.author.bot ||
+                                    Date.now() - message.createdTimestamp >
+                                        300000
+                                )
+                                    return;
 
-                            const mainChannel = this.client.channels.cache.get(this.autoPostConfig.mainChannelId) as TextChannel;
-                            if (!mainChannel) return;
+                                const mainChannel =
+                                    this.client.channels.cache.get(
+                                        this.autoPostConfig.mainChannelId
+                                    ) as TextChannel;
+                                if (!mainChannel) return;
 
-                            try {
-                                // Create memory and generate response
-                                const roomId = stringToUuid(mainChannel.id + "-" + this.runtime.agentId);
-                                const memory = {
-                                    id: stringToUuid(`announcement-${Date.now()}`),
-                                    userId: this.runtime.agentId,
-                                    agentId: this.runtime.agentId,
-                                    roomId,
-                                    content: {
-                                        text: message.content,
-                                        source: "discord",
-                                        metadata: { announcementUrl: message.url }
-                                    },
-                                    embedding: getEmbeddingZeroVector(),
-                                    createdAt: Date.now()
-                                };
+                                try {
+                                    // Create memory and generate response
+                                    const roomId = stringToUuid(
+                                        mainChannel.id +
+                                            "-" +
+                                            this.runtime.agentId
+                                    );
+                                    const memory = {
+                                        id: stringToUuid(
+                                            `announcement-${Date.now()}`
+                                        ),
+                                        userId: this.runtime.agentId,
+                                        agentId: this.runtime.agentId,
+                                        roomId,
+                                        content: {
+                                            text: message.content,
+                                            source: "discord",
+                                            metadata: {
+                                                announcementUrl: message.url,
+                                            },
+                                        },
+                                        embedding: getEmbeddingZeroVector(),
+                                        createdAt: Date.now(),
+                                    };
 
-                                let state = await this.runtime.composeState(memory, {
-                                    discordClient: this.client,
-                                    discordMessage: message,
-                                    announcementContent: message?.content,
-                                    announcementChannelId: channel.id,
-                                    agentName: this.runtime.character.name || this.client.user?.displayName
-                                });
+                                    let state = await this.runtime.composeState(
+                                        memory,
+                                        {
+                                            discordClient: this.client,
+                                            discordMessage: message,
+                                            announcementContent:
+                                                message?.content,
+                                            announcementChannelId: channel.id,
+                                            agentName:
+                                                this.runtime.character.name ||
+                                                this.client.user?.displayName,
+                                        }
+                                    );
 
-                                // Generate response using template
-                                const context = composeContext({
-                                    state,
-                                    template: this.runtime.character.templates?.discordAnnouncementHypeTemplate || discordAnnouncementHypeTemplate
+                                    // Generate response using template
+                                    const context = composeContext({
+                                        state,
+                                        template:
+                                            this.runtime.character.templates
+                                                ?.discordAnnouncementHypeTemplate ||
+                                            discordAnnouncementHypeTemplate,
+                                    });
 
-                                });
+                                    const responseContent =
+                                        await this._generateResponse(
+                                            memory,
+                                            state,
+                                            context
+                                        );
+                                    if (!responseContent?.text) return;
 
-                                const responseContent = await this._generateResponse(memory, state, context);
-                                if (!responseContent?.text) return;
+                                    // Send message and update memory
+                                    const messages = await sendMessageInChunks(
+                                        mainChannel,
+                                        responseContent.text.trim(),
+                                        null,
+                                        []
+                                    );
 
-                                // Send message and update memory
-                                const messages = await sendMessageInChunks(mainChannel, responseContent.text.trim(), null, []);
+                                    // Create and store memories
+                                    const memories = messages.map((m) => ({
+                                        id: stringToUuid(
+                                            m.id + "-" + this.runtime.agentId
+                                        ),
+                                        userId: this.runtime.agentId,
+                                        agentId: this.runtime.agentId,
+                                        content: {
+                                            ...responseContent,
+                                            url: m.url,
+                                        },
+                                        roomId,
+                                        embedding: getEmbeddingZeroVector(),
+                                        createdAt: m.createdTimestamp,
+                                    }));
 
-                                // Create and store memories
-                                const memories = messages.map(m => ({
-                                    id: stringToUuid(m.id + "-" + this.runtime.agentId),
-                                    userId: this.runtime.agentId,
-                                    agentId: this.runtime.agentId,
-                                    content: {
-                                        ...responseContent,
-                                        url: m.url,
-                                    },
-                                    roomId,
-                                    embedding: getEmbeddingZeroVector(),
-                                    createdAt: m.createdTimestamp,
-                                }));
+                                    for (const m of memories) {
+                                        await this.runtime.messageManager.createMemory(
+                                            m
+                                        );
+                                    }
 
-                                for (const m of memories) {
-                                    await this.runtime.messageManager.createMemory(m);
+                                    // Update state
+                                    state =
+                                        await this.runtime.updateRecentMessageState(
+                                            state
+                                        );
+                                    await this.runtime.evaluate(
+                                        memory,
+                                        state,
+                                        true
+                                    );
+                                } catch (error) {
+                                    elizaLogger.warn(
+                                        "[AutoPost Discord] Announcement Error:",
+                                        error
+                                    );
                                 }
-
-                                // Update state
-                                state = await this.runtime.updateRecentMessageState(state);
-                                await this.runtime.evaluate(memory, state, true);
-                            } catch (error) {
-                                elizaLogger.warn("[AutoPost Discord] Announcement Error:", error);
-                            }
-                        });
-                        elizaLogger.info(`[AutoPost Discord] Successfully set up collector for announcement channel: ${newsChannel.name}`);
+                            });
+                        elizaLogger.info(
+                            `[AutoPost Discord] Successfully set up collector for announcement channel: ${newsChannel.name}`
+                        );
                     } catch (error) {
-                        elizaLogger.warn(`[AutoPost Discord] Error setting up announcement channel collector:`, error);
+                        elizaLogger.warn(
+                            `[AutoPost Discord] Error setting up announcement channel collector:`,
+                            error
+                        );
                     }
                 } else {
-                    elizaLogger.warn(`[AutoPost Discord] Channel ${announcementChannelId} is not a valid announcement or text channel, type:`, channel.type);
+                    elizaLogger.warn(
+                        `[AutoPost Discord] Channel ${announcementChannelId} is not a valid announcement or text channel, type:`,
+                        channel.type
+                    );
                 }
             } else {
-                elizaLogger.warn(`[AutoPost Discord] Could not find channel ${announcementChannelId} directly`);
+                elizaLogger.warn(
+                    `[AutoPost Discord] Could not find channel ${announcementChannelId} directly`
+                );
             }
         }
     }
@@ -820,10 +947,9 @@ export class MessageManager {
             const lines = codeBlock.split("\n");
             const title = lines[0];
             const description = lines.slice(0, 3).join("\n");
-            const attachmentId =
-                `code-${Date.now()}-${Math.floor(Math.random() * 1000)}`.slice(
-                    -5
-                );
+            const attachmentId = `code-${Date.now()}-${Math.floor(
+                Math.random() * 1000
+            )}`.slice(-5);
             attachments.push({
                 id: attachmentId,
                 url: "",
