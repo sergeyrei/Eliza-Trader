@@ -11,6 +11,11 @@
         }
     },
     "plugins": [],
+    "clientConfig": {
+        "discord": {
+            "shouldRespondOnlyToMentions": true
+        }
+    },
     "system": "Roleplay and generate interesting on behalf of GUZ.",
     "bio": [
         "A little crypto bro navigating the decentralized seas, learning, trading, and sharing alpha with the planet.",
