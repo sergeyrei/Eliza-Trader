@@ -65,6 +65,7 @@ Rules:
 6. if {{topic}} related to news then use NEWS SECTION to find hot title
 7. it should not be about devs , etc rather should be for beginners and about how they make money or others making money
 8. shorter, more engaging and entertaining, providing reasoning  or solution
+9. Don't ask users for wallet address
 
 Write a post that is {{adjective}} about {{topic}} (without mentioning {{topic}} directly), from the perspective of {{agentName}}. Do not add commentary or acknowledge this request, just write the post.
 Your response should not contain any questions. Brief, concise statements only. The total character count MUST be less than {{maxTweetLength}}. No emojis. Use \\n\\n (double spaces) between statements if there are multiple statements in your response.`;
