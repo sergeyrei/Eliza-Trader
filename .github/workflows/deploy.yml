@@ -92,7 +92,7 @@ jobs:
 
                   # Run a new Docker container
                   echo "Starting new Docker container..."
-                  docker run -d -p 80:80 \
+                  docker run -d -p 8080:80 \
                     --name sailor-app-container \
                     -e TWITTER_USERNAME=$TWITTER_USERNAME \
                     -e TWITTER_PASSWORD=$TWITTER_PASSWORD \
