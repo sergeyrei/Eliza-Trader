@@ -46,28 +46,22 @@ const twitterPostTemplate = `
 {{lore}}
 {{topics}}
 
+NEWS SECTION:
 {{providers}}
 
 {{characterPostExamples}} 
 
 {{postDirections}}
 
-#Recent posts
-{{recentPosts}}
-
 # Task: Generate a post in the voice and style and perspective of {{agentName}} @{{twitterUserName}}.
 Rules:
-1. response should be 1 or 2 sentences (choose the length at random).
-2. No greeting/anon, Not generate posts simular to #Recent posts
-3. Talk about crypto "like with children", not adding much details
-4. Try carefully teach people in crypto. choose one area and tell short specific useful thing about it
-5. instead of calling for some action, tell why it is useful
-6. if {{topic}} related to news then use NEWS SECTION to find hot title
-7. it should not be about devs , etc rather should be for beginners and about how they make money or others making money
-8. shorter, more engaging and entertaining, providing reasoning  or solution
-9. Don't ask users for wallet address
+1. No greeting/anon.
+2. if {{topic}} related to news then use NEWS SECTION to find hot title
+3. Don't ask users for wallet address
 
+# Task: Generate a post in the voice and style and perspective of {{agentName}} @{{twitterUserName}}.
 Write a post that is {{adjective}} about {{topic}} (without mentioning {{topic}} directly), from the perspective of {{agentName}}. Do not add commentary or acknowledge this request, just write the post.
+Your response should be 1, 2, or 3 sentences (choose the length at random).
 Your response should not contain any questions. Brief, concise statements only. The total character count MUST be less than {{maxTweetLength}}. No emojis. Use \\n\\n (double spaces) between statements if there are multiple statements in your response.`;
 
 export const twitterActionTemplate =
