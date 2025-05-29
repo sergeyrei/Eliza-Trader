@@ -53,14 +53,13 @@ NEWS SECTION:
 
 {{postDirections}}
 
-# Task: Generate a post in the voice and style and perspective of {{agentName}} @{{twitterUserName}}.
+# Task: Get the most hot news from News Section and generate a post in the voice and style and perspective of {{agentName}} @{{twitterUserName}}.
 Rules:
 1. No greeting/anon.
-2. if {{topic}} related to news then use NEWS SECTION to find hot title
-3. Don't ask users for wallet address
+2. Choose only political news using GET_CURRENT_NEWS action
 
 # Task: Generate a post in the voice and style and perspective of {{agentName}} @{{twitterUserName}}.
-Write a post that is {{adjective}} about {{topic}} (without mentioning {{topic}} directly), from the perspective of {{agentName}}. Do not add commentary or acknowledge this request, just write the post.
+Write a post about news from NEWS SECTION that is {{adjective}} about {{topic}} (without mentioning {{topic}} directly), from the perspective of {{agentName}}. Do not add commentary or acknowledge this request, just write the post.
 Your response should be 1, 2, or 3 sentences (choose the length at random).
 Your response should not contain any questions. Brief, concise statements only. The total character count MUST be less than {{maxTweetLength}}. No emojis. Use \\n\\n (double spaces) between statements if there are multiple statements in your response.`;
 
@@ -626,7 +625,7 @@ export class TwitterPostClient {
                     twitterPostTemplate,
             });
 
-            elizaLogger.log("generate post prompt:\n" + context);
+            elizaLogger.info("generate post prompt:\n" + context);
 
             const response = await generateText({
                 runtime: this.runtime,

@@ -51,6 +51,7 @@ import {
 import { coingeckoPlugin } from "@elizaos/plugin-coingecko";
 import { coinmarketcapPlugin } from "@elizaos/plugin-coinmarketcap";
 import { evmPlugin } from "@elizaos/plugin-evm";
+import { newsPlugin } from "@elizaos/plugin-news";
 import { createNodePlugin } from "@elizaos/plugin-node";
 import { openWeatherPlugin } from "@elizaos/plugin-open-weather";
 import { dexScreenerPlugin } from "@elizaos/plugin-dexscreener";
@@ -63,8 +64,7 @@ import { fileURLToPath } from "url";
 import yargs from "yargs";
 import { MongoClient } from "mongodb";
 
-import { cryptoPriceProvider } from "../providers/cryptoPriceProvider";
-import { cryptoNewsProvider } from "../providers/cryptoNewsProvider";
+import { newsProvider } from "../providers/newsProvider";
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
@@ -791,41 +791,8 @@ export async function createAgent(
         // character.plugins are handled when clients are added
         plugins: [
             bootstrapPlugin,
-            getSecret(character, "DEXSCREENER_API_KEY")
-                ? dexScreenerPlugin
-                : null,
             nodePlugin,
-            getSecret(character, "EVM_PRIVATE_KEY") ? evmPlugin : null,
-            (getSecret(character, "SOLANA_PUBLIC_KEY") ||
-                (getSecret(character, "WALLET_PUBLIC_KEY") &&
-                    !getSecret(character, "WALLET_PUBLIC_KEY")?.startsWith(
-                        "0x"
-                    ))) &&
-            getSecret(character, "COINMARKETCAP_API_KEY")
-                ? coinmarketcapPlugin
-                : null,
-            getSecret(character, "COINBASE_COMMERCE_KEY")
-                ? coinbaseCommercePlugin
-                : null,
-            ...(getSecret(character, "COINBASE_API_KEY") &&
-            getSecret(character, "COINBASE_PRIVATE_KEY")
-                ? [
-                      coinbaseMassPaymentsPlugin,
-                      tradePlugin,
-                      tokenContractPlugin,
-                      advancedTradePlugin,
-                  ]
-                : []),
-            getSecret(character, "COINBASE_API_KEY") &&
-            getSecret(character, "COINBASE_PRIVATE_KEY") &&
-            getSecret(character, "COINBASE_NOTIFICATION_URI")
-                ? webhookPlugin
-                : null,
-            zilliqaPlugin,
-            getSecret(character, "COINGECKO_API_KEY") ||
-            getSecret(character, "COINGECKO_PRO_API_KEY")
-                ? coingeckoPlugin
-                : null,
+            getSecret(character, "NEWS_API_KEY") ? newsPlugin : null,
             getSecret(character, "OPEN_WEATHER_API_KEY")
                 ? openWeatherPlugin
                 : null,
@@ -838,7 +805,7 @@ export async function createAgent(
         ]
             .flat()
             .filter(Boolean),
-        providers: [cryptoNewsProvider],
+        providers: [newsProvider],
         managers: [],
         cacheManager: cache,
         fetch: logFetch,
@@ -947,9 +914,6 @@ async function startAgent(
             cache,
             token
         );
-
-        console.log(runtime);
-        elizaLogger.log(runtime);
 
         // start services/plugins/process knowledge
         await runtime.initialize();

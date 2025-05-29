@@ -1282,8 +1282,6 @@ export class AgentRuntime implements IAgentRuntime {
             conversationHeader: false,
         });
 
-        elizaLogger.info("RecentPosts:", recentPosts);
-
         // const lore = formatLore(loreData);
 
         const senderName = actorsData?.find(

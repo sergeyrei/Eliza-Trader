@@ -209,3 +209,59 @@ export const getCryptoNews = async () => {
         throw new Error("Failed to fetch crypto news. Please try again later.");
     }
 };
+
+export const getGeneralNews = async (searchTerm: string) => {
+    try {
+        const apiKey = process.env.NEWS_API_KEY;
+        if (!apiKey) {
+            throw new Error("NEWS_API_KEY environment variable is not set");
+        }
+        const enhancedSearchTerm = encodeURIComponent(
+            `"${searchTerm}" AND (Spain OR Spanish OR Madrid OR Felipe)`
+        );
+        const [everythingResponse, headlinesResponse] = await Promise.all([
+            fetch(
+                `https://newsapi.org/v2/everything?q=${enhancedSearchTerm}&sortBy=relevancy&language=en&pageSize=50&apiKey=${apiKey}`
+            ),
+            fetch(
+                `https://newsapi.org/v2/top-headlines?q=${searchTerm}&country=es&language=en&pageSize=50&apiKey=${apiKey}`
+            ),
+        ]);
+        const [everythingData, headlinesData] = await Promise.all([
+            everythingResponse.json(),
+            headlinesResponse.json(),
+        ]);
+        const allArticles = [
+            ...(headlinesData.articles || []),
+            ...(everythingData.articles || []),
+        ];
+        // Remove duplicates by title
+        const uniqueArticles = Array.from(
+            new Map(
+                allArticles
+                    .filter(
+                        (article) =>
+                            article.title &&
+                            article.url &&
+                            article.publishedAt &&
+                            article.source
+                    )
+                    .map((article) => [article.title, article])
+            ).values()
+        ).slice(0, 15);
+        return uniqueArticles.map((article) => ({
+            title: article.title,
+            link: article.url,
+            pubDate: article.publishedAt,
+            source: article.source?.name || "Unknown",
+        }));
+    } catch (error) {
+        elizaLogger.error(
+            "Error fetching general news:",
+            error.message || error
+        );
+        throw new Error(
+            "Failed to fetch general news. Please try again later."
+        );
+    }
+};
