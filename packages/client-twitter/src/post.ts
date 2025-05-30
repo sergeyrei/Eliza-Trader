@@ -46,22 +46,17 @@ const twitterPostTemplate = `
 {{lore}}
 {{topics}}
 
-NEWS SECTION:
+Providers Section
 {{providers}}
 
-{{characterPostExamples}} 
+{{characterPostExamples}}
 
 {{postDirections}}
 
-# Task: Get the most hot news from News Section and generate a post in the voice and style and perspective of {{agentName}} @{{twitterUserName}}.
-Rules:
-1. No greeting/anon.
-2. Choose only political news using GET_CURRENT_NEWS action
-
 # Task: Generate a post in the voice and style and perspective of {{agentName}} @{{twitterUserName}}.
-
-Write a post about that is {{adjective}} about the most hot news from NEWS SECTION, including the short description of the new, from the perspective of {{agentName}}. Do not add commentary or acknowledge this request, just write the post.
-Your response should be 2, 3 or 4 sentences (choose the length at random).
+Use the providers section to get the most hot news from News Section for further generating a post.
+Write a post that is {{adjective}} about {{topic}} (without mentioning {{topic}} directly), from the perspective of {{agentName}}. Do not add commentary or acknowledge this request, just write the post.
+Your response should be 1, 2, or 3 sentences (choose the length at random).
 Your response should not contain any questions. Brief, concise statements only. The total character count MUST be less than {{maxTweetLength}}. No emojis. Use \\n\\n (double spaces) between statements if there are multiple statements in your response.`;
 
 export const twitterActionTemplate =
