@@ -45,7 +45,7 @@ jobs:
             ACTION_INTERVAL: 25 # Interval in milliseconds between action processing runs (default: 5 minutes)
             ENABLE_ACTION_PROCESSING: true # Set to true to enable the action processing loop
             MAX_ACTIONS_PROCESSING: 3
-            NEWS_API_KEY: 15956254ec5f4e0d8dad4814e8f72a5a
+            NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
 
         steps:
             - name: Checkout Code

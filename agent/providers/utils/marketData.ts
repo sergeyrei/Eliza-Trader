@@ -216,9 +216,7 @@ export const getGeneralNews = async (searchTerm: string) => {
         if (!apiKey) {
             throw new Error("NEWS_API_KEY environment variable is not set");
         }
-        const enhancedSearchTerm = encodeURIComponent(
-            `"${searchTerm}" AND (Spain OR Spanish OR Madrid OR Felipe)`
-        );
+        const enhancedSearchTerm = encodeURIComponent(`"${searchTerm}"`);
         const [everythingResponse, headlinesResponse] = await Promise.all([
             fetch(
                 `https://newsapi.org/v2/everything?q=${enhancedSearchTerm}&sortBy=relevancy&language=en&pageSize=50&apiKey=${apiKey}`
