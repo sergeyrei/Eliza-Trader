@@ -10,18 +10,17 @@ const newsProvider: Provider = {
 
             elizaLogger.log("Fetched general news:");
             const formattedNews = newsArticles
-                .slice(0, 7)
+                .slice(0, 2)
                 .map(
                     (article) =>
-                        `Title: ${article.title}\nLink: ${article.link}\nDate: ${article.pubDate}\nSource: ${article.source}`
+                        `Title: ${article.title}\nDate: ${article.pubDate}\nSource: ${article.source}`
                 )
                 .join("\n\n");
 
             elizaLogger.log("Fetched general news:", formattedNews);
 
             return (
-                "NEWS SECTION - Please use this as your reference for any news-related topics\n" +
-                    formattedNews ||
+                "NEWS SECTION - just use it if you think news is important for generate post \n" + formattedNews ||
                 "NEWS SECTION\nNo general news available at the moment."
             );
         } catch (error) {
