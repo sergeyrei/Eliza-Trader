@@ -121,7 +121,7 @@ jobs:
                     -e DEFAULT_LOG_LEVEL=$DEFAULT_LOG_LEVEL \
                     -e NEWS_API_KEY=$NEWS_API_KEY \
                     -e SMALL_ANTHROPIC_MODEL=$SMALL_ANTHROPIC_MODEL \
-                    -e MEDIUM_ANTHROPIC_MODEL=$MEDIUM_ANTHROPIC_MODEL \ 
+                    -e MEDIUM_ANTHROPIC_MODEL=$MEDIUM_ANTHROPIC_MODEL \
                     $ECR_REPOSITORY:latest && echo "Container started successfully" || echo "Failed to start container"
 
                   sleep 30
