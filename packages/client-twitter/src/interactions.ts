@@ -92,15 +92,17 @@ export class TwitterInteractionClient {
     }
 
     async start() {
-        const handleTwitterInteractionsLoop = () => {
-            this.handleTwitterInteractions();
-            setTimeout(
-                handleTwitterInteractionsLoop,
-                // Defaults to 2 minutes
-                this.client.twitterConfig.TWITTER_POLL_INTERVAL * 1000
-            );
-        };
-        handleTwitterInteractionsLoop();
+        if (false) {
+            const handleTwitterInteractionsLoop = () => {
+                this.handleTwitterInteractions();
+                setTimeout(
+                    handleTwitterInteractionsLoop,
+                    // Defaults to 2 minutes
+                    this.client.twitterConfig.TWITTER_POLL_INTERVAL * 1000
+                );
+            };
+            handleTwitterInteractionsLoop();
+        }
     }
 
     async handleTwitterInteractions() {
