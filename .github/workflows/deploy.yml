@@ -34,7 +34,7 @@ jobs:
             DISCORD_APPLICATION_ID: ${{ secrets.DISCORD_APPLICATION_ID }}
             DISCORD_API_TOKEN: ${{ secrets.DISCORD_API_TOKEN }}
             CACHE_STORE: database
-            TWITTER_POLL_INTERVAL: 3000
+            TWITTER_POLL_INTERVAL: 60000
             POST_INTERVAL_MIN: 320 # Default: 90
             POST_INTERVAL_MAX: 420 # Default: 180
             POST_IMMEDIATELY: false
