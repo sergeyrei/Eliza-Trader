@@ -35,8 +35,8 @@ jobs:
             DISCORD_API_TOKEN: ${{ secrets.DISCORD_API_TOKEN }}
             CACHE_STORE: database
             TWITTER_POLL_INTERVAL: 90000
-            POST_INTERVAL_MIN: 320 # Default: 90
-            POST_INTERVAL_MAX: 420 # Default: 180
+            POST_INTERVAL_MIN: 4500 # Default: 90
+            POST_INTERVAL_MAX: 4700 # Default: 180
             POST_IMMEDIATELY: false
             MAX_TWEET_LENGTH: 800
             TWITTER_COOKIES: ${{ secrets.TWITTER_COOKIES }}
